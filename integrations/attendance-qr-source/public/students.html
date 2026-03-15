@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: https:; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; font-src 'self' https:; connect-src 'self' http://localhost:* https:; object-src 'none'; base-uri 'self'; form-action 'self'; media-src 'self' data:">
+  <title>إدارة الطلاب</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body id="body-main">
+  <!-- Loading Indicator -->
+  <div id="loadingIndicator" class="loading-overlay" style="display:none;">
+    <div class="spinner"></div>
+    <p>جاري التحميل...</p>
+    <p style="font-size: 1em; margin-top: 10px; font-weight: 600;">سبحان الله وبحمده سبحان الله العظيم</p>
+  </div>
+  
+  <header class="header">
+    <div style="display: flex; justify-content: space-between; align-items: center; padding: 0 20px;">
+      <div>
+        <h1 class="header-title">أ/محمد الربيعي</h1>
+        <p class="header-subtitle">إدارة الطلاب</p>
+      </div>
+      <div style="display: flex; gap: 10px;">
+        <button id="exitBtn" class="icon-btn" title="العودة للصفحة الرئيسية (ESC)" onclick="window.history.back()">
+          <i class="fas fa-arrow-right"></i>
+        </button>
+        <button id="darkModeToggle" class="icon-btn" title="تبديل الوضع الليلي" onclick="toggleDarkMode()">
+          <i class="fas fa-moon"></i>
+        </button>
+        <a href="settings.html" class="icon-btn" title="الإعدادات" style="text-decoration:none;color:inherit;">
+          <i class="fas fa-cog"></i>
+        </a>
+      </div>
+    </div>
+  </header>
+  <h2>إدارة الطلاب</h2>
+  
+  <!-- شريط البحث والفلاتر -->
+  <div style="background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+    <div style="display: flex; gap: 15px; flex-wrap: wrap; align-items: center;">
+      <div style="flex: 1; min-width: 250px;">
+        <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #2c3e50;">
+          <i class="fas fa-search"></i> بحث:
+        </label>
+        <input 
+          type="text" 
+          id="searchInput" 
+          placeholder="ابحث بالاسم أو ID أو رقم الهاتف..."
+          style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 8px; font-size: 14px;"
+          oninput="filterStudents()"
+        >
+      </div>
+      
+      <div style="min-width: 180px;">
+        <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #2c3e50;">
+          <i class="fas fa-building"></i> فلترة بالسنتر:
+        </label>
+        <select 
+          id="filterCenter" 
+          style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 8px; font-size: 14px;"
+          onchange="filterStudents()"
+        >
+          <option value="">جميع السناتر</option>
+        </select>
+      </div>
+      
+      <div style="min-width: 180px;">
+        <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #2c3e50;">
+          <i class="fas fa-users"></i> فلترة بالمجموعة:
+        </label>
+        <select 
+          id="filterGroup" 
+          style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 8px; font-size: 14px;"
+          onchange="filterStudents()"
+        >
+          <option value="">جميع المجموعات</option>
+        </select>
+      </div>
+      
+      <div style="min-width: 120px; align-self: flex-end;">
+        <button 
+          onclick="clearFilters()" 
+          class="main-btn" 
+          style="width: 100%; padding: 10px; font-size: 14px; background: #95a5a6;"
+        >
+          <i class="fas fa-redo"></i> إعادة تعيين
+        </button>
+      </div>
+    </div>
+    
+    <div id="filterStats" style="margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 5px; font-size: 13px; color: #7f8c8d;">
+      <i class="fas fa-info-circle"></i> <span id="filterStatsText">جاري التحميل...</span>
+    </div>
+  </div>
+  
+  <form id="studentForm">
+    <input type="hidden" id="studentId">
+    <input type="hidden" id="studentOriginalGrade">
+    <div id="gradeSelectContainer">
+      <label>الصف:
+        <select id="gradeSelect">
+          <option value="3">أولى ثانوي</option>
+          <option value="2">ثانية ثانوي</option>
+          <option value="1">ثالثة ثانوي</option>
+        </select>
+      </label><br>
+    </div>
+    
+    <div style="margin-bottom: 15px;">
+      <label for="studentCustomId" style="display: block; margin-bottom: 5px; font-weight: bold;">
+        <i class="fas fa-id-card"></i> ID الطالب:
+      </label>
+      <input type="text" id="studentCustomId" required style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 5px; font-size: 16px; box-sizing: border-box;">
+    </div>
+    
+    <div style="margin-bottom: 15px;">
+      <label for="studentName" style="display: block; margin-bottom: 5px; font-weight: bold;">
+        <i class="fas fa-user"></i> الاسم:
+      </label>
+      <input type="text" id="studentName" required style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 5px; font-size: 16px; box-sizing: border-box;">
+    </div>
+    
+    <div style="margin-bottom: 15px;">
+      <label for="studentPhone" style="display: block; margin-bottom: 5px; font-weight: bold;">
+        <i class="fas fa-phone"></i> رقم الطالب:
+      </label>
+      <input type="text" id="studentPhone" style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 5px; font-size: 16px; box-sizing: border-box;">
+    </div>
+    
+    <div style="margin-bottom: 15px;">
+      <label for="guardianPhone" style="display: block; margin-bottom: 5px; font-weight: bold;">
+        <i class="fas fa-phone-alt"></i> رقم ولي الأمر:
+      </label>
+      <input type="text" id="guardianPhone" style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 5px; font-size: 16px; box-sizing: border-box;">
+    </div>
+    
+    <div style="margin-bottom: 15px;">
+      <label for="studentCenter" style="display: block; margin-bottom: 5px; font-weight: bold;">
+        <i class="fas fa-building"></i> السنتر:
+      </label>
+      <select id="studentCenter" required onchange="updateGroupOptions()" style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 5px; font-size: 16px; box-sizing: border-box;">
+        <option value="">جاري التحميل...</option>
+      </select>
+    </div>
+    
+    <div style="margin-bottom: 15px;">
+      <label for="studentGroup" style="display: block; margin-bottom: 5px; font-weight: bold;">
+        <i class="fas fa-users"></i> المجموعة:
+      </label>
+      <select id="studentGroup" required style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 5px; font-size: 16px; box-sizing: border-box;">
+        <option value="">اختر السنتر أولاً</option>
+      </select>
+    </div>
+    
+    <button type="submit" class="main-btn"><i class="fas fa-save"></i> حفظ</button>
+    <button type="button" onclick="resetForm()" class="main-btn"><i class="fas fa-plus"></i> جديد</button>
+  </form>
+
+  <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+    <button id="exportStudentsBtn" type="button" class="main-btn"><i class="fas fa-file-excel"></i> تصدير بيانات الطلاب Excel</button>
+    <button id="importStudentsBtn" type="button" class="main-btn" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"><i class="fas fa-upload"></i> استيراد بيانات من Excel</button>
+    <input type="file" id="excelFileInput" accept=".xlsx,.xls,.csv" style="display: none;">
+  </div>
+
+  <table id="studentsTable">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>الاسم</th>
+        <th>السنتر</th>
+        <th>المجموعة</th>
+        <th>رقم الطالب</th>
+        <th>رقم ولي الأمر</th>
+        <th>البروفايل</th>
+        <th>تعديل</th>
+        <th>حذف</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <a href="index.html" class="main-btn back-btn" onclick="showLoading()"><i class="fas fa-home"></i> رجوع للرئيسية</a>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-section">
+        <p>&copy; 2026 جميع الحقوق محفوظة لـ <strong>أ/محمد الربيعي</strong></p>
+      </div>
+      <div class="footer-section">
+        <a 
+          href="https://wa.me/201080455031?text=مرحبا، أحتاج مساعدة في نظام إدارة الحضور" 
+          target="_blank"
+          style="display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #25D366 0%, #128C7E 100%); color: white; padding: 10px 20px; border-radius: 25px; text-decoration: none; font-weight: bold; transition: all 0.3s; box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);"
+          onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(37, 211, 102, 0.4)';"
+          onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(37, 211, 102, 0.3)';"
+        >
+          <i class="fab fa-whatsapp" style="font-size: 1.3em;"></i>
+          <span>تواصل مع المطور</span>
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="data.js"></script>
+  <script src="notifications.js"></script>
+  <script src="students.js"></script>
+  <script>
+    // Students page ready
+    function toggleDarkMode() {
+      const body = document.getElementById('body-main');
+      const isDark = body.classList.toggle('dark-mode');
+      localStorage.setItem('darkMode', isDark);
+      updateDarkModeButton();
+    }
+    
+    function updateDarkModeButton() {
+      const btn = document.getElementById('darkModeToggle');
+      if (document.getElementById('body-main').classList.contains('dark-mode')) {
+        btn.innerHTML = '<i class="fas fa-sun"></i>';
+      } else {
+        btn.innerHTML = '<i class="fas fa-moon"></i>';
+      }
+    }
+    
+    function showLoading() {
+      const loader = document.getElementById('loadingIndicator');
+      if (loader) {
+        loader.style.display = 'flex';
+        setTimeout(() => {
+          loader.style.display = 'none';
+        }, 1500);
+      }
+    }
+    
+    window.addEventListener('DOMContentLoaded', () => {
+      if (localStorage.getItem('darkMode') === 'true') {
+        document.getElementById('body-main').classList.add('dark-mode');
+      }
+      updateDarkModeButton();
+    });
+    
+    // ESC key handler
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape') {
+        window.history.back();
+      }
+    });
+  </script>
+  <script src="logger.js"></script>
+  <script src="license-checker.js"></script>
+</body>
+</html>

@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: https:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https:; font-src 'self' https:; connect-src 'self' http://localhost:*; object-src 'none'; base-uri 'self'; form-action 'self'; media-src 'self' data:">
+  <title>إدارة واتساب</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes slideOut {
+      from { transform: translateX(0); opacity: 1; }
+      to { transform: translateX(100%); opacity: 0; }
+    }
+  </style>
+</head>
+<body id="body-main">
+  <header class="header">
+    <div style="display: flex; justify-content: space-between; align-items: center; padding: 0 20px;">
+      <div>
+        <h1 class="header-title">أ/محمد الربيعي</h1>
+        <p class="header-subtitle">إدارة واتساب</p>
+      </div>
+      <div style="display: flex; gap: 10px;">
+        <button id="exitBtn" class="icon-btn" title="العودة للصفحة الرئيسية (ESC)" onclick="window.history.back()">
+          <i class="fas fa-arrow-right"></i>
+        </button>
+        <button id="darkModeToggle" class="icon-btn" title="تبديل الوضع الليلي" onclick="toggleDarkMode()">
+          <i class="fas fa-moon"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="container" style="max-width: 900px; margin: 30px auto;">
+    
+    <!-- قسم حالة الاتصال -->
+    <div class="card" style="margin-bottom: 20px;">
+      <h2 style="color: #667eea; margin-top: 0;">
+        <i class="fab fa-whatsapp"></i> حالة الاتصال
+      </h2>
+      
+      <div id="statusContainer" style="display: flex; align-items: center; gap: 15px; padding: 20px; background: #f8f9fa; border-radius: 8px; margin-bottom: 20px;">
+        <div id="statusIcon" style="font-size: 40px;">⏳</div>
+        <div style="flex: 1;">
+          <h3 id="statusText" style="margin: 0; color: #333;">جاري التحقق...</h3>
+          <p id="statusDetails" style="margin: 5px 0 0; color: #666; font-size: 14px;">يرجى الانتظار...</p>
+        </div>
+        <button onclick="refreshStatus()" class="btn btn-secondary" style="margin: 0;">
+          <i class="fas fa-sync-alt"></i> تحديث
+        </button>
+      </div>
+
+      <!-- QR Code Section -->
+      <div id="qrSection" style="display: none; text-align: center; padding: 20px; background: white; border: 3px dashed #667eea; border-radius: 8px;">
+        <h3 style="color: #667eea;">امسح كود QR بواسطة واتساب</h3>
+        <p style="color: #666; margin: 10px 0;">افتح واتساب → الإعدادات → الأجهزة المرتبطة → ربط جهاز</p>
+        <div id="qrCodeDisplay" style="margin: 20px auto; display: inline-block; padding: 20px; background: white; border-radius: 8px;"></div>
+        <p style="color: #999; font-size: 13px; margin-top: 10px;">سيتم تحديث الكود تلقائياً</p>
+      </div>
+
+      <!-- معلومات الطوابير -->
+      <div id="queueInfo" style="display: none; padding: 15px; background: #e3f2fd; border-radius: 8px; margin-top: 15px;">
+        <i class="fas fa-clock"></i>
+        <strong>عدد الرسائل في الطابور:</strong> <span id="queueCount">0</span>
+      </div>
+    </div>
+
+    <!-- قسم الإجراءات -->
+    <div class="card">
+      <h2 style="color: #667eea; margin-top: 0;">
+        <i class="fas fa-tools"></i> الإجراءات
+      </h2>
+      
+      <div style="display: grid; gap: 15px;">
+        <button onclick="initWhatsApp()" class="btn btn-primary" style="width: 100%; padding: 15px;">
+          <i class="fas fa-power-off"></i> تهيئة الاتصال
+        </button>
+        
+        <button onclick="hardReset()" class="btn" style="width: 100%; padding: 15px; background: #dc3545; color: white;">
+          <i class="fas fa-redo"></i> إعادة ضبط كاملة
+        </button>
+
+        <button onclick="testMessage()" class="btn btn-secondary" style="width: 100%; padding: 15px;">
+          <i class="fas fa-paper-plane"></i> اختبار إرسال رسالة
+        </button>
+      </div>
+
+      <!-- قسم الاختبار -->
+      <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+        <h4 style="margin-top: 0; color: #333;">اختبار الإرسال</h4>
+        <input type="text" id="testPhone" placeholder="رقم الهاتف (مثال: 01012345678)" style="width: 100%; padding: 10px; margin-bottom: 10px; border: 2px solid #ddd; border-radius: 5px;">
+        <input type="text" id="testMessage" placeholder="الرسالة الاختبارية" style="width: 100%; padding: 10px; margin-bottom: 10px; border: 2px solid #ddd; border-radius: 5px;">
+        <button onclick="sendTestMessage()" class="btn btn-primary" style="width: 100%;">
+          <i class="fas fa-paper-plane"></i> إرسال الآن
+        </button>
+      </div>
+    </div>
+
+    <!-- قسم الملاحظات -->
+    <div class="card" style="background: #fff3cd; border: 2px solid #ffc107;">
+      <h3 style="color: #856404; margin-top: 0;">
+        <i class="fas fa-info-circle"></i> ملاحظات مهمة
+      </h3>
+      <ul style="color: #856404; line-height: 1.8;">
+        <li>تأكد من توصيل هاتفك بالإنترنت قبل مسح كود QR</li>
+        <li>الكود يتغير تلقائياً كل دقيقة، ولا حاجة لتحديث الصفحة</li>
+        <li>الرسائل تُرسل تلقائياً مع فارق 3 ثوان بينها لتفادي الحظر</li>
+        <li>إعادة الضبط الكاملة تحذف الجلسة وتتطلب مسح كود QR مرة أخرى</li>
+        <li>أرقام الهواتف المصرية يتم تنسيقها تلقائياً (إضافة 20)</li>
+      </ul>
+    </div>
+  </div>
+
+  <script src="notifications.js"></script>
+  <script src="license-checker.js"></script>
+  <script>
+    // وضع الليل/النهار
+    function toggleDarkMode() {
+      document.body.classList.toggle('dark-mode');
+      const isDark = document.body.classList.contains('dark-mode');
+      localStorage.setItem('darkMode', isDark);
+      const icon = document.querySelector('#darkModeToggle i');
+      icon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+    }
+
+    // تحميل الوضع المحفوظ
+    if (localStorage.getItem('darkMode') === 'true') {
+      document.body.classList.add('dark-mode');
+      document.querySelector('#darkModeToggle i').className = 'fas fa-sun';
+    }
+
+    let statusInterval;
+    let autoInitTriggered = false;
+    let qrRestarting = false;
+
+    // دالة عرض الإشعارات
+    function showNotification(message, type = 'info') {
+      console.log(`[${type.toUpperCase()}] ${message}`);
+      
+      // إنشاء عنصر الإشعار
+      const notification = document.createElement('div');
+      notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px 20px;
+        border-radius: 8px;
+        color: white;
+        font-weight: bold;
+        z-index: 10000;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        animation: slideIn 0.3s ease;
+      `;
+      
+      // تعيين اللون حسب النوع
+      if (type === 'success') {
+        notification.style.background = '#28a745';
+      } else if (type === 'error') {
+        notification.style.background = '#dc3545';
+      } else if (type === 'warning') {
+        notification.style.background = '#ffc107';
+        notification.style.color = '#000';
+      } else {
+        notification.style.background = '#17a2b8';
+      }
+      
+      notification.textContent = message;
+      document.body.appendChild(notification);
+      
+      // إزالة الإشعار بعد 4 ثوانٍ
+      setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => {
+          if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+          }
+        }, 300);
+      }, 4000);
+    }
+
+    // تحديث الحالة
+    async function refreshStatus() {
+      try {
+        // التحقق من وجود window.electronAPI
+        if (!window.electronAPI || !window.electronAPI.whatsapp || !window.electronAPI.whatsapp.status) {
+          console.error('❌ electronAPI غير متاح');
+          const statusIcon = document.getElementById('statusIcon');
+          const statusText = document.getElementById('statusText');
+          const statusDetails = document.getElementById('statusDetails');
+          
+          statusIcon.textContent = '⚠️';
+          statusText.textContent = 'الواجهة غير متاحة';
+          statusText.style.color = '#ffc107';
+          statusDetails.textContent = 'تأكد من تشغيل التطبيق في Electron';
+          return;
+        }
+
+        const response = await window.electronAPI.whatsapp.status();
+        console.log('📡 Response:', response);
+        
+        // التحقق من وجود خطأ في الرد
+        if (response && !response.success && response.error) {
+          throw new Error(response.error);
+        }
+        
+        const status = response.status || response; // دعم كلا التنسيقين
+        console.log('📊 WhatsApp Status:', status); // للتشخيص
+        
+        const statusIcon = document.getElementById('statusIcon');
+        const statusText = document.getElementById('statusText');
+        const statusDetails = document.getElementById('statusDetails');
+        const qrSection = document.getElementById('qrSection');
+        const queueInfo = document.getElementById('queueInfo');
+        const queueCount = document.getElementById('queueCount');
+
+        if (status.isReady || status.authenticated) {
+          statusIcon.textContent = '✅';
+          statusText.textContent = 'متصل بنجاح';
+          statusText.style.color = '#28a745';
+          statusDetails.textContent = 'الواتساب جاهز للإرسال';
+          qrSection.style.display = 'none';
+        } else if (status.lastQR || status.qr) {
+          statusIcon.textContent = '📱';
+          statusText.textContent = 'في انتظار المصادقة';
+          statusText.style.color = '#ffc107';
+          const qrAgeMs = status.lastQRAt ? Date.now() - status.lastQRAt : null;
+          statusDetails.textContent = 'يرجى مسح كود QR أدناه';
+          qrSection.style.display = 'block';
+          const qrCode = status.lastQR || status.qr;
+          document.getElementById('qrCodeDisplay').innerHTML = `<img src="${qrCode}" alt="QR Code" style="max-width: 300px; border: 5px solid #667eea; border-radius: 10px;">`;
+          if (qrAgeMs && qrAgeMs > 60000 && !qrRestarting) {
+            qrRestarting = true;
+            statusDetails.textContent = 'انتهت صلاحية QR، جارٍ التحديث...';
+            try {
+              const restartResult = await window.electronAPI.whatsapp.restart();
+              if (!restartResult || restartResult.success === false) {
+                throw new Error(restartResult && restartResult.error ? restartResult.error : 'فشل تحديث QR');
+              }
+            } catch (restartError) {
+              console.error('❌ خطأ في تحديث QR:', restartError);
+            } finally {
+              setTimeout(() => {
+                qrRestarting = false;
+                refreshStatus();
+              }, 2000);
+            }
+            return;
+          }
+        } else if (status.state === 'disconnected') {
+          statusIcon.textContent = '⚠️';
+          statusText.textContent = 'غير متصل';
+          statusText.style.color = '#dc3545';
+          statusDetails.textContent = 'اضغط "تهيئة الاتصال" لبدء الربط';
+          qrSection.style.display = 'none';
+        } else {
+          statusIcon.textContent = '⏳';
+          statusText.textContent = 'جاري التهيئة...';
+          statusText.style.color = '#666';
+          statusDetails.textContent = `الحالة: ${status.state || 'غير معروف'}`;
+          qrSection.style.display = 'none';
+        }
+
+        // عرض عدد الرسائل في الطابور
+        if (status.queueLength > 0) {
+          queueInfo.style.display = 'block';
+          queueCount.textContent = status.queueLength;
+        } else {
+          queueInfo.style.display = 'none';
+        }
+
+      } catch (error) {
+        console.error('❌ خطأ في جلب الحالة:', error);
+        console.error('تفاصيل الخطأ:', error.message, error.stack);
+        const statusIcon = document.getElementById('statusIcon');
+        const statusText = document.getElementById('statusText');
+        const statusDetails = document.getElementById('statusDetails');
+        
+        statusIcon.textContent = '❌';
+        statusText.textContent = 'خطأ في الاتصال';
+        statusText.style.color = '#dc3545';
+        statusDetails.textContent = error.message || 'فشل في جلب حالة الواتساب';
+      }
+    }
+
+    // تهيئة الاتصال
+    async function initWhatsApp() {
+      try {
+        showNotification('جاري تهيئة الاتصال...', 'info');
+        const result = await window.electronAPI.whatsapp.init();
+        if (!result || result.success === false) {
+          throw new Error(result && result.error ? result.error : 'فشل في تهيئة واتساب');
+        }
+        showNotification('تم بدء عملية التهيئة', 'success');
+        setTimeout(refreshStatus, 2000);
+      } catch (error) {
+        showNotification('خطأ في التهيئة: ' + error.message, 'error');
+      }
+    }
+
+    // إعادة ضبط كاملة
+    async function hardReset() {
+      if (!confirm('هل أنت متأكد من إعادة الضبط الكاملة؟ سيتم حذف الجلسة الحالية.')) {
+        return;
+      }
+      
+      try {
+        showNotification('جاري إعادة الضبط...', 'info');
+        await window.electronAPI.whatsapp.reset();
+        showNotification('تمت إعادة الضبط بنجاح', 'success');
+        setTimeout(refreshStatus, 3000);
+      } catch (error) {
+        showNotification('خطأ في إعادة الضبط: ' + error.message, 'error');
+      }
+    }
+
+    // اختبار بسيط
+    async function testMessage() {
+      try {
+        const testPhone = '01012345678'; // رقم اختباري
+        const testMsg = 'رسالة اختبارية من نظام الحضور';
+        
+        showNotification('جاري إضافة رسالة اختبارية إلى الطابور...', 'info');
+        await window.electronAPI.whatsapp.sendGrade({ phone: testPhone, studentName: 'اختبار', message: testMsg });
+        showNotification('تمت إضافة الرسالة إلى طابور الإرسال', 'success');
+        setTimeout(refreshStatus, 1000);
+      } catch (error) {
+        showNotification('خطأ: ' + error.message, 'error');
+      }
+    }
+
+    // إرسال رسالة مخصصة
+    async function sendTestMessage() {
+      const phone = document.getElementById('testPhone').value.trim();
+      const message = document.getElementById('testMessage').value.trim();
+      
+      if (!phone || !message) {
+        showNotification('يرجى إدخال الرقم والرسالة', 'error');
+        return;
+      }
+      
+      try {
+        showNotification('جاري إضافة الرسالة إلى الطابور...', 'info');
+        await window.electronAPI.whatsapp.sendGrade({ phone, studentName: 'اختبار', message });
+        showNotification('تمت إضافة الرسالة إلى طابور الإرسال', 'success');
+        document.getElementById('testPhone').value = '';
+        document.getElementById('testMessage').value = '';
+        setTimeout(refreshStatus, 1000);
+      } catch (error) {
+        showNotification('خطأ: ' + error.message, 'error');
+      }
+    }
+
+    // تحديث دوري كل 5 ثوان
+    function startAutoRefresh() {
+      if (!autoInitTriggered) {
+        autoInitTriggered = true;
+        initWhatsApp();
+      }
+      refreshStatus(); // تحديث فوري
+      statusInterval = setInterval(refreshStatus, 5000);
+    }
+
+    // تنظيف عند إغلاق الصفحة
+    window.addEventListener('beforeunload', () => {
+      if (statusInterval) clearInterval(statusInterval);
+    });
+
+    // بدء التحديث التلقائي
+    startAutoRefresh();
+    
+    // ESC key handler
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape') {
+        window.history.back();
+      }
+    });
+  </script>
+</body>
+</html>

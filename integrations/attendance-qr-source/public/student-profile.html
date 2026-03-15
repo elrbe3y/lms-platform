@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: https:; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; font-src 'self' https:; connect-src 'self' http://localhost:* https:; object-src 'none'; base-uri 'self'; form-action 'self'; media-src 'self' data:">
+  <title>بروفايل الطالب</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    /* تحسينات خاصة بصفحة البروفايل */
+    @media (max-width: 768px) {
+      div[style*="grid-template-columns: 1fr 1fr"] {
+        grid-template-columns: 1fr !important;
+      }
+      h2 {
+        font-size: 1.3em !important;
+      }
+    }
+    
+    /* تأثيرات الجداول */
+    #attendanceTable tbody tr {
+      transition: all 0.3s ease;
+    }
+    
+    #attendanceTable tbody tr:hover {
+      transform: translateX(-5px);
+      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    }
+    
+    /* تحسين الكروت في Dark Mode */
+    body.dark-mode .card {
+      background: var(--card-bg) !important;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.5) !important;
+    }
+    
+    body.dark-mode #attendanceTable tbody tr {
+      color: var(--text-color) !important;
+    }
+    
+    body.dark-mode #attendanceTable tbody tr:nth-child(even) {
+      background: var(--bg-color-light) !important;
+    }
+    
+    body.dark-mode #attendanceTable tbody tr:hover {
+      background: rgba(102, 126, 234, 0.2) !important;
+    }
+  </style>
+</head>
+<body id="body-main" class="student-profile-page">
+  <!-- Header -->
+  <header class="header">
+    <div style="display: flex; justify-content: space-between; align-items: center; padding: 0 20px;">
+      <div>
+        <h1 class="header-title">أ/محمد الربيعي</h1>
+        <p class="header-subtitle">بروفايل الطالب</p>
+      </div>
+      <div style="display: flex; gap: 10px;">
+        <button id="exitBtn" class="icon-btn" title="العودة (ESC)" onclick="window.history.back()">
+          <i class="fas fa-arrow-right"></i>
+        </button>
+        <button onclick="window.print()" class="icon-btn" title="طباعة البروفايل">
+          <i class="fas fa-print"></i>
+        </button>
+        <button id="darkModeToggle" class="icon-btn" title="تبديل الوضع الليلي" onclick="toggleDarkMode()">
+          <i class="fas fa-moon"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="profile-shell" style="max-width: 1200px; margin: 20px auto; padding: 0 20px;">
+    <!-- بطاقة معلومات الطالب الرئيسية -->
+    <div class="profile-hero" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px; padding: 30px; margin-bottom: 25px; box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3); color: white;">
+      <div class="profile-hero-inner" style="display: flex; align-items: center; gap: 25px; flex-wrap: wrap;">
+        <div class="profile-avatar" style="width: 120px; height: 120px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 5px 20px rgba(0,0,0,0.2);">
+          <i class="fas fa-user-graduate" style="font-size: 60px; color: #667eea;"></i>
+        </div>
+        <div style="flex: 1;">
+          <h2 id="studentName" style="margin: 0 0 10px 0; font-size: 2em; text-shadow: 2px 2px 4px rgba(0,0,0,0.2);">جاري التحميل...</h2>
+          <p id="studentInfo" style="margin: 5px 0; font-size: 1.1em; opacity: 0.95;">
+            <i class="fas fa-id-card"></i> <span id="studentIdDisplay">-</span>
+          </p>
+          <p style="margin: 5px 0; font-size: 1.1em; opacity: 0.95;">
+            <i class="fas fa-school"></i> <span id="studentGrade">-</span> | 
+            <i class="fas fa-building"></i> <span id="studentCenter">-</span> | 
+            <i class="fas fa-users"></i> <span id="studentGroup">-</span>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- إحصائيات سريعة -->
+    <div class="profile-stats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 25px;" id="statsCards">
+      <div class="profile-stat-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 15px; padding: 20px; text-align: center; color: white; box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);">
+        <i class="fas fa-calendar-check" style="font-size: 2.5em; margin-bottom: 10px;"></i>
+        <h3 style="margin: 10px 0 5px 0; font-size: 2em;" id="totalSessions">0</h3>
+        <p style="margin: 0; opacity: 0.9;">حضور</p>
+      </div>
+      <div class="profile-stat-card" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); border-radius: 15px; padding: 20px; text-align: center; color: white; box-shadow: 0 5px 15px rgba(17, 153, 142, 0.3);">
+        <i class="fas fa-book" style="font-size: 2.5em; margin-bottom: 10px;"></i>
+        <h3 style="margin: 10px 0 5px 0; font-size: 2em;" id="avgHomework">0</h3>
+        <p style="margin: 0; opacity: 0.9;">نسبة الواجب</p>
+      </div>
+      <div class="profile-stat-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border-radius: 15px; padding: 20px; text-align: center; color: white; box-shadow: 0 5px 15px rgba(240, 147, 251, 0.3);">
+        <i class="fas fa-tasks" style="font-size: 2.5em; margin-bottom: 10px;"></i>
+        <h3 style="margin: 10px 0 5px 0; font-size: 2em;" id="avgQuiz">0</h3>
+        <p style="margin: 0; opacity: 0.9;">نسبة الاختبار</p>
+      </div>
+      <div class="profile-stat-card" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); border-radius: 15px; padding: 20px; text-align: center; color: white; box-shadow: 0 5px 15px rgba(250, 112, 154, 0.3);">
+        <i class="fas fa-star" style="font-size: 2.5em; margin-bottom: 10px;"></i>
+        <h3 style="margin: 10px 0 5px 0; font-size: 2em;" id="totalScore">0</h3>
+        <p style="margin: 0; opacity: 0.9;">النسبة الكلية</p>
+      </div>
+    </div>
+
+    <div class="profile-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px;">
+      <!-- بيانات الطالب التفصيلية -->
+      <div class="card profile-card" style="padding: 25px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1);">
+        <h2 style="margin-top: 0; color: #667eea; border-bottom: 3px solid #667eea; padding-bottom: 10px;">
+          <i class="fas fa-address-card"></i> معلومات الاتصال
+        </h2>
+        <div id="studentData" style="margin-top: 20px;">
+          <div style="margin-bottom: 15px; padding: 12px; background: #f8f9fa; border-radius: 8px; border-right: 4px solid #667eea;">
+            <i class="fas fa-phone" style="color: #667eea; margin-left: 10px;"></i>
+            <strong>رقم الطالب:</strong> <span id="studentPhone">-</span>
+          </div>
+          <div style="margin-bottom: 15px; padding: 12px; background: #f8f9fa; border-radius: 8px; border-right: 4px solid #11998e;">
+            <i class="fas fa-phone-alt" style="color: #11998e; margin-left: 10px;"></i>
+            <strong>رقم ولي الأمر:</strong> <span id="guardianPhone">-</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- تقدم الطالب البياني -->
+      <div class="card profile-card" style="padding: 25px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1);">
+        <h2 style="margin-top: 0; color: #667eea; border-bottom: 3px solid #667eea; padding-bottom: 10px;">
+          <i class="fas fa-chart-line"></i> تقدم الطالب
+        </h2>
+        <div id="progressContainer" style="padding: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px;">
+          <!-- سيتم ملء هذا القسم بواسطة JavaScript -->
+        </div>
+      </div>
+    </div>
+
+    <!-- سجل الحضور -->
+    <div class="card profile-card profile-attendance" style="padding: 25px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1);">
+      <div class="profile-attendance-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2 style="margin: 0; color: #667eea; border-bottom: 3px solid #667eea; padding-bottom: 10px; flex: 1;">
+          <i class="fas fa-history"></i> سجل الحضور التفصيلي
+        </h2>
+        <button onclick="addTestAttendanceForCurrentStudent()" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: bold; box-shadow: 0 3px 10px rgba(40, 167, 69, 0.3); transition: all 0.3s;">
+          <i class="fas fa-plus-circle"></i> إضافة سجل حضور
+        </button>
+      </div>
+      <div style="overflow-x: auto; margin-top: 20px;">
+        <table id="attendanceTable" class="profile-table" style="width: 100%; border-collapse: collapse;">
+          <thead>
+            <tr style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+              <th style="padding: 15px; text-align: center; border-radius: 10px 0 0 0;"><i class="fas fa-calendar"></i> التاريخ</th>
+              <th style="padding: 15px; text-align: center;"><i class="fas fa-clock"></i> الوقت</th>
+              <th style="padding: 15px; text-align: center;"><i class="fas fa-book"></i> الواجب</th>
+              <th style="padding: 15px; text-align: center;"><i class="fas fa-tasks"></i> الاختبار</th>
+              <th style="padding: 15px; text-align: center;"><i class="fas fa-layer-group"></i> المجموع</th>
+              <th style="padding: 15px; text-align: center;"><i class="fas fa-award"></i> التقدير</th>
+              <th style="padding: 15px; text-align: center; border-radius: 0 10px 0 0;"><i class="fas fa-sticky-note"></i> ملاحظة</th>
+            </tr>
+          </thead>
+          <tbody id="attendanceBody"></tbody>
+        </table>
+      </div>
+      <p id="noAttendance" style="color: #999; text-align: center; margin-top: 20px; display: none; font-size: 1.1em;">
+        <i class="fas fa-info-circle"></i> لا يوجد سجل حضور لهذا الطالب
+      </p>
+      
+      <!-- معلومات تشخيص -->
+      <div id="debugInfo" style="background: #f0f0f0; padding: 15px; margin-top: 20px; border-radius: 8px; font-family: monospace; font-size: 12px; display: none;">
+        <strong>معلومات تشخيصية:</strong><br>
+        معرف الطالب: <span id="debugStudentId"></span><br>
+        عدد السجلات الكلي: <span id="debugTotalRecords"></span><br>
+        عدد سجلات هذا الطالب: <span id="debugStudentRecords"></span>
+      </div>
+      
+      <!-- رسالة مساعدة -->
+      <div id="helpMessage" style="background: linear-gradient(135deg, #fff3cd 0%, #fff8e1 100%); border: 2px solid #ffc107; border-radius: 10px; padding: 20px; margin-top: 20px; display: none;">
+        <h3 style="color: #856404; margin-top: 0;">
+          <i class="fas fa-exclamation-triangle"></i> لا توجد سجلات حضور
+        </h3>
+        <p style="color: #856404; margin-bottom: 15px;">
+          لم يتم تسجيل أي حضور لهذا الطالب حتى الآن.
+        </p>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+          <button onclick="addTestAttendanceForCurrentStudent()" style="background: #28a745; color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold;">
+            <i class="fas fa-plus"></i> إضافة سجل حضور تجريبي
+          </button>
+          <button onclick="location.href='scan.html?grade=1'" style="background: #667eea; color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold;">
+            <i class="fas fa-qrcode"></i> الذهاب لتسجيل الحضور
+          </button>
+          <button onclick="showStoredData()" style="background: #17a2b8; color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold;">
+            <i class="fas fa-bug"></i> فحص البيانات (Console)
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- حصص الغياب -->
+    <div class="card profile-card" style="padding: 25px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); margin-top: 25px;">
+      <h2 style="margin-top: 0; color: #dc3545; border-bottom: 3px solid #dc3545; padding-bottom: 10px;">
+        <i class="fas fa-user-times"></i> حصص الغياب
+      </h2>
+      <div style="overflow-x: auto; margin-top: 20px;">
+        <table id="absentTable" class="profile-table" style="width: 100%; border-collapse: collapse;">
+          <thead>
+            <tr style="background: linear-gradient(135deg, #ff6b6b 0%, #c44569 100%); color: white;">
+              <th style="padding: 15px; text-align: center; border-radius: 10px 0 0 0;"><i class="fas fa-calendar"></i> التاريخ</th>
+              <th style="padding: 15px; text-align: center; border-radius: 0 10px 0 0;"><i class="fas fa-clock"></i> الوقت</th>
+            </tr>
+          </thead>
+          <tbody id="absentBody"></tbody>
+        </table>
+      </div>
+      <p id="noAbsent" style="color: #999; text-align: center; margin-top: 20px; display: none; font-size: 1.1em;">
+        <i class="fas fa-check-circle"></i> لا يوجد غياب مسجل لهذا الطالب
+      </p>
+    </div>
+  </main>
+
+    <script src="data.js"></script>
+    <script src="notifications.js"></script>
+  <script src="logger.js"></script>
+  <script src="license-checker.js"></script>
+  <script src="student-profile.js"></script>
+  <script>
+    // ESC key handler
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape') {
+        window.history.back();
+      }
+    });
+  </script>
+</body>
+</html>

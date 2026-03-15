@@ -1,0 +1,554 @@
+# 🔑 License Key Generator - Device-Locked System## 📚 Overview / نظرة عامة**🆕 NEW VERSION 2.0:**  License keys are now **locked to specific devices** using Device ID.  Each key works only on one device and cannot be transferred or reused.**🆕 الإصدار 2.0:**  أكواد التفعيل الآن **مرتبطة بأجهزة محددة** باستخدام معرف الجهاز.  كل كود يعمل على جهاز واحد فقط ولا يمكن نقله أو إعادة استخدامه.---## 🚀 Quick Start / البداية السريعة### Method 1: HTML Generator (✅ Recommended) / طريقة 1: مولد HTML (✅ موصى به)**Easiest way - No installation needed!**  **الطريقة الأسهل - لا تحتاج تثبيت!**1. Open `generator.html` in any browser     افتح `generator.html` في أي متصفح2. Paste the **Device ID** from the client     الصق **معرف الجهاز** من العميل3. Select license type (Yearly or Lifetime)     اختر نوع الترخيص (سنوي أو مدى الحياة)4. Click **"توليد كود التفعيل"**     اضغط **"Generate License Key"**5. Copy the generated key and send to client     انسخ الكود المولد وأرسله للعميل---### Method 2: Node.js CLI / طريقة 2: سطر الأوامر```bashcd LicenseKeyGeneratornode generator.js <DEVICE_ID># Example / مثال:node generator.js DVC-ABC123XYZ-456789```**Output / المخرجات:**```🔑 مولد أكواد التفعيل - بـ Device ID📱 Device ID: DVC-ABC123XYZ-456789━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━📦 Yearly License (1 Year - 3 Devices):ZXdvV2tkU3FzYXFwamRrZmxkc2tsZmRza2xmZHNrbGZk...✅ Verification: { valid: true, data: {...} }📦 Lifetime License (Forever - 5 Devices):YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXoxMjM0...✅ Verification: { valid: true, data: {...} }✅ تم حفظ المفاتيح في: d:\تسجيل حضورqr\license.json```---## 📋 License Types / أنواع التراخيص| Type / النوع | Duration / المدة | Max Devices / الأجهزة | Expiry Warning / التنبيه ||--------------|------------------|----------------------|-------------------------|| **Yearly** / سنوي | 365 days / يوم | 3 | 30 days before / قبل 30 يوم || **Lifetime** / مدى الحياة | Forever / لا ينتهي ∞ | 5 | None / لا يوجد |---## 🔒 Security Features / ميزات الأمان### 1️⃣ Device Binding / الربط بالجهاز**How it works / كيف يعمل:**```javascript// Each key contains encrypted Device IDlicenseKey = Base64(encrypted:signature:encodedDeviceId)// Verification checks Device ID matchif (decoded_deviceId !== current_deviceId) {  return "هذا الكود غير صالح لهذا الجهاز";}```**Result / النتيجة:**- ✅ Copying key to another device won't work    نسخ الكود لجهاز آخر لن يعمل  - ✅ Each device needs its own unique key    كل جهاز يحتاج كوده الخاص---### 2️⃣ Time Manipulation Detection / كشف التلاعب بالتاريخ**Tracked data / البيانات المتتبعة:**```javascript{
+  lastCheck: 1707601234567,          // Last verification time
+  systemTimeSnapshot: 1707601234567  // System time checkpoint
+}
+```
+
+**Detection algorithm / خوارزمية الكشف:**
+```javascript
+timeDiff = now - lastCheck
+systemTimeDiff = now - systemTimeSnapshot
+
+// Alert if difference > 5 minutes
+if (abs(timeDiff - systemTimeDiff) > 300000) {
+  return "تم اكتشاف تلاعب بالتاريخ";
+}
+```
+
+**What is detected / ما يتم اكتشافه:**
+- ✅ Time going backwards  
+  الوقت يرجع للخلف
+  
+- ✅ Large forward jumps  
+  قفزات كبيرة للأمام
+  
+- ✅ Suspicious gaps (>30 days)  
+  فجوات مشبوهة (أكثر من 30 يوم)
+
+**Penalty / العقوبة:**
+- License deleted immediately  
+  حذف الترخيص فوراً
+  
+- Redirect to activation page  
+  إعادة توجيه لصفحة التفعيل
+
+---
+
+### 3️⃣ Single-Use Enforcement / فرض الاستخدام الفردي
+
+**Mechanism / الآلية:**
+```javascript
+// Track used keys
+usedLicenses = ["key1", "key2", ...]
+
+// Block reuse attempts
+if (usedLicenses.includes(newKey)) {
+  return "هذا الكود مستخدم مسبقاً";
+}
+
+// Mark as used after successful activation
+usedLicenses.push(activatedKey);
+```
+
+**Result / النتيجة:**
+- ✅ Keys cannot be reused even after data deletion  
+  الأكواد لا يمكن إعادة استخدامها حتى بعد حذف البيانات
+  
+- ✅ Each activation burns the key permanently  
+  كل تفعيل يحرق الكود بشكل دائم
+
+---
+
+### 4️⃣ Periodic Check / الفحص الدوري
+
+**Schedule / الجدول:**
+```javascript
+// Every 5 minutes
+setInterval(checkLicense, 5 * 60 * 1000);
+```
+
+**What is checked / ما يتم فحصه:**
+- License validity / صحة الترخيص
+- Expiry date / تاريخ الانتهاء
+- System time integrity / سلامة وقت النظام
+- Data tampering / التلاعب بالبيانات
+
+---
+
+## 🔐 Encryption Details / تفاصيل التشفير
+
+### Keys / المفاتيح
+
+```javascript
+SECRET_KEY = '8663bea296241ad3e816dc564b2115f5'
+
+SIGNATURE_KEY = '14644a6a2b497eb7c39d9257e6b33825ee15335df11cbdc4f8ea9c19367e7d85058cef9f3f36b518d00e91fe72199c6b517be08fde27680f8e10c06f21802bf487e6fd251c3795e2a73196820cd67f202c'
+```
+
+⚠️ **KEEP THESE SECRET! / حافظ على سريتها!**
+
+---
+
+### Encoding Process / عملية الترميز
+
+**Step 1:** Create license data JSON  
+**الخطوة 1:** إنشاء JSON ببيانات الترخيص
+
+```javascript
+const data = {
+  id: 'random_hex_16',
+  createdAt: '2026-02-10T01:00:00.000Z',
+  expiryDate: '2027-02-10T01:00:00.000Z',
+  maxDevices: 5,
+  type: 'lifetime',
+  deviceId: 'DVC-ABC123-456789'
+};
+```
+
+**Step 2:** Encode data to Base64  
+**الخطوة 2:** ترميز البيانات إلى Base64
+
+```javascript
+const encrypted = btoa(JSON.stringify(data));
+```
+
+**Step 3:** Generate HMAC signature  
+**الخطوة 3:** توليد توقيع HMAC
+
+```javascript
+const signature = simpleHmac(encrypted + deviceId, SIGNATURE_KEY);
+```
+
+**Step 4:** Encode Device ID  
+**الخطوة 4:** ترميز معرف الجهاز
+
+```javascript
+const encodedDeviceId = btoa(deviceId);
+```
+
+**Step 5:** Combine and re-encode  
+**الخطوة 5:** دمج وإعادة الترميز
+
+```javascript
+const licenseKey = btoa(`${encrypted}:${signature}:${encodedDeviceId}`);
+```
+
+**Final format / التنسيق النهائي:**
+```
+Base64(Base64(data):signature:Base64(deviceId))
+```
+
+---
+
+### Decoding Process / عملية فك الترميز
+
+**Step 1:** Decode Base64 outer layer  
+**الخطوة 1:** فك ترميز الطبقة الخارجية
+
+```javascript
+const decoded = atob(licenseKey);
+```
+
+**Step 2:** Split components  
+**الخطوة 2:** فصل المكونات
+
+```javascript
+const [encrypted, signature, encodedDeviceId] = decoded.split(':');
+```
+
+**Step 3:** Decode Device ID  
+**الخطوة 3:** فك ترميز معرف الجهاز
+
+```javascript
+const deviceId = atob(encodedDeviceId);
+```
+
+**Step 4:** Verify Device ID  
+**الخطوة 4:** التحقق من معرف الجهاز
+
+```javascript
+if (deviceId !== currentDeviceId) {
+  return { valid: false, error: 'هذا الكود غير صالح لهذا الجهاز' };
+}
+```
+
+**Step 5:** Verify signature  
+**الخطوة 5:** التحقق من التوقيع
+
+```javascript
+const expectedSignature = simpleHmac(encrypted + deviceId, SIGNATURE_KEY);
+if (signature !== expectedSignature) {
+  return { valid: false, error: 'توقيع غير صحيح' };
+}
+```
+
+**Step 6:** Decode data and check expiry  
+**الخطوة 6:** فك ترميز البيانات وفحص الصلاحية
+
+```javascript
+const data = JSON.parse(atob(encrypted));
+if (data.expiryDate && new Date(data.expiryDate) < new Date()) {
+  return { valid: false, error: 'انتهت صلاحية الكود' };
+}
+```
+
+---
+
+## 📖 Usage Examples / أمثلة الاستخدام
+
+### Example 1: Complete Workflow / مثال 1: سير العمل الكامل
+
+#### **👤 Client Side / جانب العميل**
+
+```javascript
+// 1. Generate Device ID
+const deviceId = generateDeviceId();
+// Output: "DVC-1A2B3C4D5E-123456789ABCD"
+
+// 2. Send to developer via WhatsApp/Email
+sendToSupport(deviceId);
+```
+
+#### **👨‍💻 Developer Side / جانب المطور**
+
+```bash
+# 3. Generate key for that Device ID
+node generator.js DVC-1A2B3C4D5E-123456789ABCD
+
+# 4. Send generated key to client
+```
+
+#### **👤 Client Side / جانب العميل**
+
+```javascript
+// 5. Activate with received key
+activateApp(receivedKey);
+
+// 6. System verifies and saves
+if (verification.valid) {
+  localStorage.setItem('appLicense', JSON.stringify(licenseData));
+}
+```
+
+---
+
+### Example 2: Verification Code / مثال 2: كود التحقق
+
+```javascript
+function verifyLicenseKey(licenseKey, deviceId) {
+  try {
+    // Decode outer Base64
+    const decoded = atob(licenseKey);
+    const [encrypted, signature, encodedDeviceId] = decoded.split(':');
+    
+    // Check Device ID
+    const expectedDeviceId = atob(encodedDeviceId);
+    if (expectedDeviceId !== deviceId) {
+      return { 
+        valid: false, 
+        error: 'هذا الكود غير صالح لهذا الجهاز' 
+      };
+    }
+    
+    // Verify signature
+    const expectedSignature = simpleHmac(encrypted + deviceId, SIGNATURE_KEY);
+    if (signature !== expectedSignature) {
+      return { 
+        valid: false, 
+        error: 'توقيع غير صحيح' 
+      };
+    }
+    
+    // Decode and check data
+    const data = JSON.parse(atob(encrypted));
+    if (data.type !== 'lifetime' && data.expiryDate) {
+      const expiryDate = new Date(data.expiryDate);
+      if (expiryDate < new Date()) {
+        return { 
+          valid: false, 
+          error: 'انتهت صلاحية الكود',
+          data
+        };
+      }
+    }
+    
+    return { valid: true, data };
+  } catch (err) {
+    return { 
+      valid: false, 
+      error: 'خطأ في معالجة الكود: ' + err.message 
+    };
+  }
+}
+```
+
+---
+
+### Example 3: Error Handling / مثال 3: معالجة الأخطاء
+
+```javascript
+const result = verifyLicenseKey(inputKey, currentDeviceId);
+
+switch(result.error) {
+  case 'هذا الكود غير صالح لهذا الجهاز':
+    alert('⚠️ This key was generated for a different device!\nPlease request a new key with your Device ID.');
+    break;
+    
+  case 'توقيع غير صحيح':
+    alert('❌ Invalid or corrupted license key!\nPlease check the key and try again.');
+    break;
+    
+  case 'انتهت صلاحية الكود':
+    alert('⏰ This license has expired!\nPlease renew your subscription.');
+    break;
+    
+  case 'تنسيق غير صحيح':
+    alert('❌ Malformed license key!\nMake sure you copied the entire key.');
+    break;
+    
+  default:
+    if (result.valid) {
+      alert('✅ License activated successfully!');
+    } else {
+      alert('❌ Error: ' + result.error);
+    }
+}
+```
+
+---
+
+## 🛠️ API Reference / مرجع API
+
+### generateLicenseKey(deviceId, expiryDays, maxDevices)
+
+Generates a new license key locked to a specific device.  
+يولد كود تفعيل جديد مرتبط بجهاز محدد.
+
+**Parameters / المعاملات:**
+- `deviceId` (string): Unique device identifier / معرف الجهاز الفريد
+- `expiryDays` (number): Days until expiration (-1 for lifetime) / الأيام حتى الانتهاء (-1 مدى الحياة)
+- `maxDevices` (number): Maximum allowed devices / الحد الأقصى للأجهزة
+
+**Returns / يرجع:**
+- (string): Base64 encoded license key / كود تفعيل مرمز بـ Base64
+
+**Example / مثال:**
+```javascript
+const key = generateLicenseKey('DVC-ABC-123', 365, 3);
+// Returns: "ZXdvV2tkU3FzYXFwamRrZmxkc2tsZmRza2xmZHNrbGZk..."
+```
+
+---
+
+### verifyLicenseKey(licenseKey, deviceId)
+
+Verifies a license key for a specific device.  
+يتحقق من كود تفعيل لجهاز محدد.
+
+**Parameters / المعاملات:**
+- `licenseKey` (string): Base64 encoded license key / كود التفعيل المرمز
+- `deviceId` (string): Current device identifier / معرف الجهاز الحالي
+
+**Returns / يرجع:**
+```javascript
+{
+  valid: boolean,
+  data?: {
+    id: string,
+    type: string,
+    expiryDate: string | null,
+    maxDevices: number,
+    deviceId: string,
+    createdAt: string
+  },
+  error?: string
+}
+```
+
+**Example / مثال:**
+```javascript
+const result = verifyLicenseKey(key, 'DVC-ABC-123');
+if (result.valid) {
+  console.log('License type:', result.data.type);
+  console.log('Expires:', result.data.expiryDate);
+} else {
+  console.error('Error:', result.error);
+}
+```
+
+---
+
+### generateDeviceId()
+
+Generates a unique device identifier based on system properties.  
+يولد معرف جهاز فريد بناءً على خصائص النظام.
+
+**Returns / يرجع:**
+- (string): Device ID in format "DVC-HASH-TIMESTAMP"
+
+**Example / مثال:**
+```javascript
+const deviceId = generateDeviceId();
+// Returns: "DVC-1A2B3C4D5E-123456789ABCD"
+```
+
+**Based on / بناءً على:**
+- User Agent
+- Screen resolution
+- Color depth
+- Timezone offset
+- Hardware concurrency
+- Device memory
+
+---
+
+## ⚠️ Error Messages / رسائل الأخطاء
+
+| Error Code / كود الخطأ | Message | Cause / السبب |
+|------------------------|---------|---------------|
+| `DEVICE_MISMATCH` | هذا الكود غير صالح لهذا الجهاز | Device ID doesn't match |
+| `INVALID_SIGNATURE` | توقيع غير صحيح | Signature verification failed |
+| `EXPIRED` | انتهت صلاحية الكود | License has expired |
+| `MALFORMED` | تنسيق غير صحيح | Key format is invalid |
+| `ALREADY_USED` | هذا الكود مستخدم مسبقاً | Key was already activated |
+| `TIME_TAMPERING` | تم اكتشاف تلاعب بالتاريخ | System time manipulation detected |
+
+---
+
+## 📦 Files Structure / بنية الملفات
+
+```
+LicenseKeyGenerator/
+├── generator.js          # Node.js CLI tool
+│                        # أداة سطر الأوامر
+│
+├── generator.html       # Browser-based generator (✅ Recommended)
+│                        # مولد متصفح (✅ موصى به)
+│
+├── generator.html.bak   # Backup of old version
+│                        # نسخة احتياطية من الإصدار القديم
+│
+└── README.md            # This file / هذا الملف
+```
+
+---
+
+## 🔄 Migration from v1.0 / الانتقال من v1.0
+
+**Old version (v1.0) / الإصدار القديم:**
+```javascript
+// Keys were NOT device-locked
+generateKey(365, 3);
+```
+
+**New version (v2.0) / الإصدار الجديد:**
+```javascript
+// Keys ARE device-locked (requires Device ID)
+generateLicenseKey('DVC-ABC-123', 365, 3);
+```
+
+**Breaking changes / التغييرات الجذرية:**
+- ❌ **Trial mode removed** / تم إزالة الوضع التجريبي
+- ✅ **Device ID required** / معرف الجهاز مطلوب
+- ✅ **Keys are single-use** / الأكواد للاستخدام الفردي
+- ✅ **Time tampering detection** / كشف التلاعب بالتاريخ
+
+---
+
+## 🚨 Security Best Practices / أفضل ممارسات الأمان
+
+### For Developers / للمطورين
+
+1. **Never share SECRET_KEY or SIGNATURE_KEY**  
+   لا تشارك مفاتيح التشفير أبداً
+   
+2. **Store keys in environment variables**  
+   احفظ المفاتيح في متغيرات البيئة
+   
+3. **Don't commit keys to Git**  
+   لا ترفع المفاتيح إلى Git
+   
+4. **Validate Device IDs before generating**  
+   تحقق من معرفات الأجهزة قبل التوليد
+   
+5. **Keep generation logs for auditing**  
+   احتفظ بسجلات التوليد للمراجعة
+
+### For Users / للمستخدمين
+
+1. **Keep Device ID safe**  
+   احتفظ بمعرف جهازك بأمان
+   
+2. **Don't share activation codes**  
+   لا تشارك أكواد التفعيل
+   
+3. **Don't manipulate system time**  
+   لا تتلاعب بوقت النظام
+   
+4. **Contact support for new devices**  
+   اتصل بالدعم للأجهزة الجديدة
+
+---
+
+## 📞 Support / الدعم
+
+### Common Issues / المشاكل الشائعة
+
+**Q: Key doesn't work on my device**  
+**س: الكود لا يعمل على جهازي**
+
+A: Make sure you sent the correct Device ID to the developer. Each key is locked to a specific device.  
+ج: تأكد من إرسال معرف الجهاز الصحيح للمطور. كل كود مرتبط بجهاز محدد.
+
+---
+
+**Q: "Time manipulation detected" error**  
+**س: خطأ "تم اكتشاف تلاعب بالتاريخ"**
+
+A: Set your system time to automatic. The app detects any time changes.  
+ج: اضبط وقت النظام على تلقائي. التطبيق يكتشف أي تغييرات في الوقت.
+
+---
+
+**Q: Can I transfer my license to a new device?**  
+**س: هل يمكن نقل الترخيص لجهاز جديد؟**
+
+A: No, licenses are locked to devices. Contact support for a new key.  
+ج: لا، التراخيص مرتبطة بالأجهزة. اتصل بالدعم للحصول على كود جديد.
+
+---
+
+**Q: "Already used" error when activating**  
+**س: خطأ "مستخدم مسبقاً" عند التفعيل**
+
+A: Each key can only be used once. Request a new key from the developer.  
+ج: كل كود يُستخدم مرة واحدة فقط. اطلب كوداً جديداً من المطور.
+
+---
+
+## 📜 License / الترخيص
+
+This generator is proprietary software.  
+Unauthorized distribution or reverse engineering is prohibited.
+
+هذا المولد برنامج خاص.  
+التوزيع غير المصرح به أو الهندسة العكسية محظورة.
+
+---
+
+## 📅 Version History / تاريخ الإصدارات
+
+| Version | Date | Changes |
+|---------|------|---------|
+| **2.0** | Feb 2026 | ✅ Device locking<br>✅ Time tampering detection<br>✅ Single-use enforcement<br>❌ Removed trial mode |
+| **1.0** | Feb 2026 | Initial release with trial mode |
+
+---
+
+**🎉 Thank you for using our License System!**  
+**🎉 شكراً لاستخدام نظام التراخيص الخاص بنا!**
+
+**Last Updated:** February 10, 2026  
+**آخر تحديث:** 10 فبراير 2026
+
+**Contact / للتواصل:** [Support Email/WhatsApp]

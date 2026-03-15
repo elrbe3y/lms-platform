@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>عارض السجلات - Logs Viewer</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    .logs-container {
+      max-width: 1400px;
+      margin: 20px auto;
+      padding: 20px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    .stat-card h3 {
+      margin: 0 0 10px 0;
+      color: #7f8c8d;
+      font-size: 14px;
+    }
+
+    .stat-card .value {
+      font-size: 32px;
+      font-weight: bold;
+      color: #2c3e50;
+    }
+
+    .filters-panel {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+
+    .filter-row {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      align-items: flex-end;
+    }
+
+    .filter-item {
+      flex: 1;
+      min-width: 150px;
+    }
+
+    .filter-item label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+      color: #2c3e50;
+      font-size: 14px;
+    }
+
+    .filter-item input,
+    .filter-item select {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    .logs-table-container {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+
+    .logs-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .logs-table thead {
+      background: #2c3e50;
+      color: white;
+    }
+
+    .logs-table th,
+    .logs-table td {
+      padding: 12px;
+      text-align: right;
+      border-bottom: 1px solid #ecf0f1;
+    }
+
+    .logs-table th {
+      font-weight: bold;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .logs-table tbody tr:hover {
+      background: #f8f9fa;
+    }
+
+    .log-level {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 15px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .log-level.DEBUG { background: #95a5a6; color: white; }
+    .log-level.INFO { background: #3498db; color: white; }
+    .log-level.WARN { background: #f39c12; color: white; }
+    .log-level.ERROR { background: #e74c3c; color: white; }
+    .log-level.CRITICAL { background: #c0392b; color: white; }
+
+    .log-data {
+      max-width: 300px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .log-data:hover {
+      background: #ecf0f1;
+      white-space: normal;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      max-width: 800px;
+      max-height: 80vh;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      background: #e74c3c;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 35px;
+      height: 35px;
+      cursor: pointer;
+      font-size: 18px;
+    }
+
+    pre {
+      background: #2c3e50;
+      color: #ecf0f1;
+      padding: 15px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 13px;
+    }
+
+    .no-logs {
+      text-align: center;
+      padding: 60px 20px;
+      color: #7f8c8d;
+    }
+
+    .no-logs i {
+      font-size: 64px;
+      margin-bottom: 20px;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div style="display: flex; justify-content: space-between; align-items: center; padding: 0 20px;">
+      <div>
+        <h1 class="header-title">عارض السجلات</h1>
+        <p class="header-subtitle">Logs Viewer - تتبع جميع الأحداث والأخطاء</p>
+      </div>
+      <div style="display: flex; gap: 10px;">
+        <button class="icon-btn" title="العودة" onclick="window.history.back()">
+          <i class="fas fa-arrow-right"></i>
+        </button>
+        <a href="index.html" class="icon-btn" title="الرئيسية">
+          <i class="fas fa-home"></i>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <div class="logs-container">
+    <!-- الإحصائيات -->
+    <div class="stats-grid" id="statsGrid">
+      <div class="stat-card">
+        <h3>إجمالي السجلات</h3>
+        <div class="value" id="totalLogs">0</div>
+      </div>
+      <div class="stat-card">
+        <h3>الأخطاء</h3>
+        <div class="value" style="color: #e74c3c;" id="totalErrors">0</div>
+      </div>
+      <div class="stat-card">
+        <h3>التحذيرات</h3>
+        <div class="value" style="color: #f39c12;" id="totalWarnings">0</div>
+      </div>
+      <div class="stat-card">
+        <h3>معلومات</h3>
+        <div class="value" style="color: #3498db;" id="totalInfo">0</div>
+      </div>
+    </div>
+
+    <!-- أزرار الإجراءات -->
+    <div class="action-buttons">
+      <button class="main-btn" onclick="refreshLogs()">
+        <i class="fas fa-sync"></i> تحديث
+      </button>
+      <button class="main-btn" onclick="exportLogs()" style="background: #27ae60;">
+        <i class="fas fa-download"></i> تصدير JSON
+      </button>
+      <button class="main-btn" onclick="exportLogsCSV()" style="background: #16a085;">
+        <i class="fas fa-file-csv"></i> تصدير CSV
+      </button>
+      <button class="main-btn" onclick="clearAllLogs()" style="background: #e74c3c;">
+        <i class="fas fa-trash"></i> مسح الكل
+      </button>
+    </div>
+
+    <!-- لوحة الفلاتر -->
+    <div class="filters-panel">
+      <h3 style="margin: 0 0 15px 0; color: #2c3e50;">
+        <i class="fas fa-filter"></i> الفلاتر
+      </h3>
+      <div class="filter-row">
+        <div class="filter-item">
+          <label>البحث:</label>
+          <input type="text" id="searchInput" placeholder="ابحث في السجلات..." oninput="applyFilters()">
+        </div>
+        <div class="filter-item">
+          <label>المستوى:</label>
+          <select id="levelFilter" onchange="applyFilters()">
+            <option value="">الكل</option>
+            <option value="DEBUG">DEBUG</option>
+            <option value="INFO">INFO</option>
+            <option value="WARN">WARN</option>
+            <option value="ERROR">ERROR</option>
+            <option value="CRITICAL">CRITICAL</option>
+          </select>
+        </div>
+        <div class="filter-item">
+          <label>الفئة:</label>
+          <select id="categoryFilter" onchange="applyFilters()">
+            <option value="">الكل</option>
+          </select>
+        </div>
+        <div class="filter-item" style="min-width: 100px; max-width: 120px;">
+          <label>&nbsp;</label>
+          <button class="main-btn" onclick="resetFilters()" style="width: 100%; background: #95a5a6;">
+            <i class="fas fa-redo"></i> إعادة تعيين
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- جدول السجلات -->
+    <div class="logs-table-container">
+      <div id="logsTableWrapper"></div>
+    </div>
+  </div>
+
+  <!-- Modal لعرض تفاصيل السجل -->
+  <div id="logModal" class="modal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeModal()">
+        <i class="fas fa-times"></i>
+      </button>
+      <h2 style="margin-top: 0; color: #2c3e50;">تفاصيل السجل</h2>
+      <div id="logDetails"></div>
+    </div>
+  </div>
+
+  <script src="logger.js"></script>
+  <script>
+    let allLogs = [];
+    let filteredLogs = [];
+
+    // تحميل السجلات عند فتح الصفحة
+    document.addEventListener('DOMContentLoaded', () => {
+      refreshLogs();
+    });
+
+    // تحديث السجلات
+    function refreshLogs() {
+      allLogs = AppLogger.getLogs();
+      filteredLogs = [...allLogs];
+      updateStats();
+      updateCategoryFilter();
+      renderLogs();
+    }
+
+    // تحديث الإحصائيات
+    function updateStats() {
+      const stats = AppLogger.getStats();
+      
+      document.getElementById('totalLogs').textContent = stats.total;
+      document.getElementById('totalErrors').textContent = stats.errors;
+      document.getElementById('totalWarnings').textContent = stats.warnings;
+      document.getElementById('totalInfo').textContent = stats.byLevel.INFO || 0;
+    }
+
+    // تحديث فلتر الفئات
+    function updateCategoryFilter() {
+      const categoryFilter = document.getElementById('categoryFilter');
+      const categories = new Set(allLogs.map(log => log.category));
+      
+      categoryFilter.innerHTML = '<option value="">الكل</option>';
+      categories.forEach(cat => {
+        const option = document.createElement('option');
+        option.value = cat;
+        option.textContent = cat;
+        categoryFilter.appendChild(option);
+      });
+    }
+
+    // تطبيق الفلاتر
+    function applyFilters() {
+      const search = document.getElementById('searchInput').value.toLowerCase();
+      const level = document.getElementById('levelFilter').value;
+      const category = document.getElementById('categoryFilter').value;
+
+      filteredLogs = allLogs.filter(log => {
+        const matchSearch = !search || 
+          log.message.toLowerCase().includes(search) ||
+          JSON.stringify(log.data).toLowerCase().includes(search);
+        
+        const matchLevel = !level || log.level === level;
+        const matchCategory = !category || log.category === category;
+
+        return matchSearch && matchLevel && matchCategory;
+      });
+
+      renderLogs();
+    }
+
+    // إعادة تعيين الفلاتر
+    function resetFilters() {
+      document.getElementById('searchInput').value = '';
+      document.getElementById('levelFilter').value = '';
+      document.getElementById('categoryFilter').value = '';
+      filteredLogs = [...allLogs];
+      renderLogs();
+    }
+
+    // عرض السجلات
+    function renderLogs() {
+      const wrapper = document.getElementById('logsTableWrapper');
+
+      if (filteredLogs.length === 0) {
+        wrapper.innerHTML = `
+          <div class="no-logs">
+            <i class="fas fa-inbox"></i>
+            <h3>لا توجد سجلات</h3>
+            <p>لم يتم العثور على سجلات تطابق الفلاتر المحددة</p>
+          </div>
+        `;
+        return;
+      }
+
+      let html = `
+        <table class="logs-table">
+          <thead>
+            <tr>
+              <th style="width: 50px;">#</th>
+              <th style="width: 150px;">الوقت</th>
+              <th style="width: 100px;">المستوى</th>
+              <th style="width: 120px;">الفئة</th>
+              <th>الرسالة</th>
+              <th style="width: 300px;">البيانات</th>
+              <th style="width: 80px;">التفاصيل</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      // عرض السجلات من الأحدث للأقدم
+      filteredLogs.slice().reverse().forEach((log, index) => {
+        const time = new Date(log.timestamp).toLocaleString('ar-EG', {
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          day: '2-digit',
+          month: '2-digit'
+        });
+
+        const dataStr = JSON.stringify(log.data, null, 2);
+        const dataPreview = dataStr.length > 50 ? dataStr.substring(0, 50) + '...' : dataStr;
+
+        html += `
+          <tr>
+            <td>${filteredLogs.length - index}</td>
+            <td style="font-size: 12px;">${time}</td>
+            <td><span class="log-level ${log.level}">${log.level}</span></td>
+            <td><strong>${log.category}</strong></td>
+            <td>${log.message}</td>
+            <td class="log-data" title="انقر لعرض التفاصيل">${dataPreview}</td>
+            <td>
+              <button class="btn-icon" onclick="showLogDetails(${filteredLogs.length - index - 1})" style="background: #3498db;">
+                <i class="fas fa-eye"></i>
+              </button>
+            </td>
+          </tr>
+        `;
+      });
+
+      html += `
+          </tbody>
+        </table>
+      `;
+
+      wrapper.innerHTML = html;
+    }
+
+    // عرض تفاصيل السجل
+    function showLogDetails(index) {
+      const log = filteredLogs[filteredLogs.length - 1 - index];
+      const modal = document.getElementById('logModal');
+      const details = document.getElementById('logDetails');
+
+      details.innerHTML = `
+        <p><strong>المعرف:</strong> ${log.id}</p>
+        <p><strong>الوقت:</strong> ${new Date(log.timestamp).toLocaleString('ar-EG')}</p>
+        <p><strong>المستوى:</strong> <span class="log-level ${log.level}">${log.level}</span></p>
+        <p><strong>الفئة:</strong> ${log.category}</p>
+        <p><strong>الرسالة:</strong> ${log.message}</p>
+        <p><strong>الصفحة:</strong> ${log.url}</p>
+        <p><strong>معرف الجلسة:</strong> <code>${log.sessionId}</code></p>
+        <h3>البيانات الإضافية:</h3>
+        <pre>${JSON.stringify(log.data, null, 2)}</pre>
+        <h3>User Agent:</h3>
+        <pre>${log.userAgent}</pre>
+      `;
+
+      modal.classList.add('active');
+    }
+
+    // إغلاق Modal
+    function closeModal() {
+      document.getElementById('logModal').classList.remove('active');
+    }
+
+    // تصدير JSON
+    function exportLogs() {
+      AppLogger.exportLogs();
+      logger.info('LOGS_VIEWER', 'تم تصدير السجلات بصيغة JSON');
+    }
+
+    // تصدير CSV
+    function exportLogsCSV() {
+      const headers = ['ID', 'Timestamp', 'Level', 'Category', 'Message', 'Data', 'URL'];
+      const rows = allLogs.map(log => [
+        log.id,
+        log.timestamp,
+        log.level,
+        log.category,
+        log.message,
+        JSON.stringify(log.data),
+        log.url
+      ]);
+
+      let csv = headers.join(',') + '\n';
+      rows.forEach(row => {
+        csv += row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',') + '\n';
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `app_logs_${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      logger.info('LOGS_VIEWER', 'تم تصدير السجلات بصيغة CSV');
+    }
+
+    // مسح جميع السجلات
+    function clearAllLogs() {
+      if (confirm('هل أنت متأكد من مسح جميع السجلات؟ لا يمكن التراجع عن هذا الإجراء.')) {
+        AppLogger.clearLogs();
+        refreshLogs();
+        alert('تم مسح جميع السجلات بنجاح');
+      }
+    }
+
+    // إغلاق Modal عند النقر خارجه
+    document.getElementById('logModal').addEventListener('click', (e) => {
+      if (e.target.id === 'logModal') {
+        closeModal();
+      }
+    });
+  </script>
+  <script src="license-checker.js"></script>
+</body>
+</html>

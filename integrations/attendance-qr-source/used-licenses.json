@@ -1,0 +1,24 @@
+{
+  "licenses": [
+    {
+      "hash": "1b4154d6a0dbb27a4bdca427cd349702af90d4ad76c9324143bdbf106d3b9563",
+      "usedAt": "2026-01-18T17:31:26.881Z",
+      "hardwareId": "47317f84502c0066b067e0a51963f6e2dc0cb98873e1ba994e2d6180b35f3989"
+    },
+    {
+      "hash": "728a8e14cb2bb094428caf5201ee2c15bc1ef52409cd26e730ac78795ee62ec0",
+      "usedAt": "2026-01-19T12:05:19.708Z",
+      "hardwareId": "47317f84502c0066b067e0a51963f6e2dc0cb98873e1ba994e2d6180b35f3989"
+    },
+    {
+      "hash": "edc66762d0d7fc8b3ba37693c85bf1bdc6ff27eb083f1ea822d9c1f8acf0207c",
+      "usedAt": "2026-01-24T12:29:03.923Z",
+      "hardwareId": "47317f84502c0066b067e0a51963f6e2dc0cb98873e1ba994e2d6180b35f3989"
+    },
+    {
+      "hash": "409488f31dd70501c38ca6ab239432e711334bddc5809bc5ebeb06ca048f3529",
+      "usedAt": "2026-02-01T20:57:04.846Z",
+      "hardwareId": "47317f84502c0066b067e0a51963f6e2dc0cb98873e1ba994e2d6180b35f3989"
+    }
+  ]
+}

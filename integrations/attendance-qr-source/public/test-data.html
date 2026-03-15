@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>اختبار البيانات - localStorage</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    .data-section {
+      background: white;
+      padding: 20px;
+      margin: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .data-section h2 {
+      color: #667eea;
+      border-bottom: 2px solid #667eea;
+      padding-bottom: 10px;
+    }
+    pre {
+      background: #f5f5f5;
+      padding: 15px;
+      border-radius: 5px;
+      overflow-x: auto;
+      direction: ltr;
+      text-align: left;
+    }
+    .button-group {
+      margin: 20px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .test-btn {
+      padding: 10px 20px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .test-btn:hover {
+      background: #5568d3;
+    }
+    .test-btn.danger {
+      background: #dc3545;
+    }
+    .test-btn.danger:hover {
+      background: #c82333;
+    }
+    .test-btn.success {
+      background: #28a745;
+    }
+    .test-btn.success:hover {
+      background: #218838;
+    }
+  </style>
+</head>
+<body>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; font-src 'self' https:; connect-src 'self' http://localhost:* https:; object-src 'none'; base-uri 'self'; form-action 'self'; media-src 'self' data:">
+  <header class="header">
+    <h1 class="header-title">اختبار البيانات المخزنة</h1>
+  </header>
+
+  <div class="button-group">
+    <button class="test-btn" onclick="loadData()">تحديث البيانات</button>
+    <button class="test-btn success" onclick="initializeTest()">تهيئة بيانات اختبار</button>
+    <button class="test-btn danger" onclick="clearAll()">مسح جميع البيانات</button>
+    <button class="test-btn" onclick="addTestAttendanceForStudent1()">إضافة حضور للطالب #1</button>
+    <a href="index.html" class="test-btn" style="text-decoration: none; display: inline-block;">العودة للرئيسية</a>
+  </div>
+
+  <div class="data-section">
+    <h2>الطلاب (Students)</h2>
+    <div id="studentsCount" style="margin-bottom: 10px;"></div>
+    <pre id="studentsData"></pre>
+  </div>
+
+  <div class="data-section">
+    <h2>سجلات الحضور (Attendance)</h2>
+    <div id="attendanceCount" style="margin-bottom: 10px;"></div>
+    <pre id="attendanceData"></pre>
+  </div>
+
+  <div class="data-section">
+    <h2>معلومات localStorage</h2>
+    <pre id="localStorageInfo"></pre>
+  </div>
+
+  <div class="data-section">
+    <h2>تحقق من تطابق البيانات</h2>
+    <div id="matchingInfo" style="font-family: 'Courier New', monospace; background: #f5f5f5; padding: 15px; border-radius: 5px;"></div>
+  </div>
+
+  <script src="data.js"></script>
+  <script>
+    function loadData() {
+      const students = JSON.parse(localStorage.getItem('students') || '[]');
+      const attendance = JSON.parse(localStorage.getItem('attendance') || '[]');
+      
+      document.getElementById('studentsCount').innerHTML = `<strong>عدد الطلاب: ${students.length}</strong>`;
+      document.getElementById('studentsData').textContent = JSON.stringify(students, null, 2);
+      
+      document.getElementById('attendanceCount').innerHTML = `<strong>عدد السجلات: ${attendance.length}</strong>`;
+      document.getElementById('attendanceData').textContent = JSON.stringify(attendance, null, 2);
+      
+      // معلومات localStorage
+      const info = {
+        totalKeys: localStorage.length,
+        keys: Object.keys(localStorage),
+        sizes: {}
+      };
+      
+      Object.keys(localStorage).forEach(key => {
+        info.sizes[key] = localStorage.getItem(key).length + ' characters';
+      });
+      
+      document.getElementById('localStorageInfo').textContent = JSON.stringify(info, null, 2);
+      
+      // تحقق من تطابق البيانات
+      let matchingHtml = '<h3>تحليل البيانات:</h3>';
+      students.forEach(student => {
+        const studentAttendance = attendance.filter(a => String(a.student_id) === String(student.id));
+        matchingHtml += `<div style="margin: 10px 0; padding: 10px; background: ${studentAttendance.length > 0 ? '#d4edda' : '#f8d7da'}; border-radius: 5px;">`;
+        matchingHtml += `<strong>الطالب: ${student.name}</strong><br>`;
+        matchingHtml += `ID: "${student.id}" (نوع: ${typeof student.id})<br>`;
+        matchingHtml += `عدد سجلات الحضور: <strong>${studentAttendance.length}</strong><br>`;
+        if (studentAttendance.length > 0) {
+          matchingHtml += `<small>✅ يوجد تطابق صحيح</small>`;
+        } else {
+          matchingHtml += `<small>❌ لا يوجد تطابق - تحقق من student_id في سجلات الحضور</small>`;
+        }
+        matchingHtml += `</div>`;
+      });
+      
+      document.getElementById('matchingInfo').innerHTML = matchingHtml;
+      
+      console.log('Students:', students);
+      console.log('Attendance:', attendance);
+    }
+    
+    function initializeTest() {
+      if (typeof initializeTestData === 'function') {
+        initializeTestData();
+        alert('تم تهيئة بيانات الاختبار');
+        loadData();
+      } else {
+        alert('الدالة غير موجودة!');
+      }
+    }
+    
+    function clearAll() {
+      if (confirm('هل أنت متأكد من حذف جميع البيانات؟ لا يمكن التراجع عن هذا الإجراء!')) {
+        localStorage.clear();
+        alert('✅ تم حذف جميع البيانات بنجاح');
+        setTimeout(() => {
+          window.location.reload();
+        }, 500);
+      }
+    }
+    
+    function addTestAttendanceForStudent1() {
+      const student = dataManager.getStudentById('1');
+      if (!student) {
+        alert('الطالب #1 غير موجود. قم بتهيئة البيانات أولاً.');
+        return;
+      }
+      
+      const now = new Date();
+      const date = now.toISOString().slice(0, 10);
+      const time = now.toTimeString().slice(0, 5);
+      const sessionId = `${date}_${time.split(':')[0]}_${Date.now()}`;
+      
+      try {
+        dataManager.recordAttendance('1', student.name, date, time, 9, 8.5, sessionId);
+        alert('تم إضافة سجل حضور للطالب #1');
+        loadData();
+      } catch (error) {
+        alert('خطأ: ' + error.message);
+      }
+    }
+    
+    // تحميل البيانات عند فتح الصفحة
+    window.addEventListener('DOMContentLoaded', loadData);
+  </script>
+</body>
+</html>

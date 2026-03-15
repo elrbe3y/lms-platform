@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: https:; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; font-src 'self' https:; connect-src 'self' http://localhost:* https:; object-src 'none'; base-uri 'self'; form-action 'self'; media-src 'self' data:">
+  <title>لوحة التحكم التحليلية</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body id="body-main">
+  <!-- Loading Indicator -->
+  <div id="loadingIndicator" class="loading-overlay" style="display:none;">
+    <div class="spinner"></div>
+    <p>جاري التحميل...</p>
+    <p style="font-size: 1em; margin-top: 10px; font-weight: 600;">سبحان الله وبحمده سبحان الله العظيم</p>
+  </div>
+  
+  <header class="header">
+    <div style="display: flex; justify-content: space-between; align-items: center; padding: 0 30px; max-width: 1400px; margin: 0 auto;">
+      <div style="display: flex; align-items: center; gap: 15px;">
+        <div style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 50%; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+          <i class="fas fa-chart-pie" style="font-size: 2em;"></i>
+        </div>
+        <div>
+          <h1 class="header-title" style="margin: 0; font-size: 2em;">أ/محمد الربيعي</h1>
+          <p class="header-subtitle" style="margin: 5px 0 0 0; font-size: 1.1em;">لوحة التحكم التحليلية</p>
+        </div>
+      </div>
+      <div style="display: flex; gap: 10px;">
+        <button id="exitBtn" class="icon-btn" title="العودة (ESC)" onclick="window.history.back()" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 45px; height: 45px; border-radius: 50%; font-size: 1.2em; cursor: pointer;">
+          <i class="fas fa-arrow-right"></i>
+        </button>
+        <button id="darkModeToggle" class="icon-btn" title="تبديل الوضع الليلي" onclick="toggleDarkMode()" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 45px; height: 45px; border-radius: 50%; font-size: 1.2em; cursor: pointer;">
+          <i class="fas fa-moon"></i>
+        </button>
+        <a href="absence-tracker.html" style="background: rgba(255,255,255,0.2); border: none; color: white; padding: 10px 20px; border-radius: 25px; font-size: 1em; display: flex; align-items: center; gap: 8px; text-decoration: none; transition: all 0.3s;">
+          <i class="fas fa-user-clock"></i> الغياب
+        </a>
+        <a href="index.html" style="background: rgba(255,255,255,0.2); border: none; color: white; padding: 10px 20px; border-radius: 25px; font-size: 1em; display: flex; align-items: center; gap: 8px; text-decoration: none; transition: all 0.3s;">
+          <i class="fas fa-home"></i> الرئيسية
+        </a>
+      </div>
+    </div>
+  </header>
+  
+  <h2 id="dashboardTitle">لوحة التحكم التحليلية</h2>
+  
+  <!-- اختيار الصف -->
+  <div style="text-align:center; margin:20px;">
+    <label style="font-size:18px; font-weight:bold;">
+      <i class="fas fa-book"></i> الصف:
+      <select id="gradeSelect" style="padding:10px; border:2px solid #667eea; border-radius:5px; font-size:16px;">
+        <option value="3">أولى ثانوي</option>
+        <option value="2">ثانية ثانوي</option>
+        <option value="1">ثالثة ثانوي</option>
+      </select>
+    </label>
+  </div>
+
+  <!-- الإحصائيات السريعة -->
+  <div style="background:white; padding:20px; border-radius:10px; margin:20px auto; max-width:1400px; box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+    <h3 style="color:#667eea; margin-top:0;">الإحصائيات السريعة</h3>
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:15px;">
+      <div class="stat-box" style="background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:white; padding:20px; border-radius:8px; text-align:center;">
+        <div style="font-size:14px; opacity:0.9;"><i class="fas fa-users"></i> عدد الطلاب</div>
+        <div style="font-size:36px; font-weight:bold;" id="totalStudents">0</div>
+      </div>
+      <div class="stat-box" style="background:linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color:white; padding:20px; border-radius:8px; text-align:center;">
+        <div style="font-size:14px; opacity:0.9;"><i class="fas fa-clipboard-check"></i> سجلات الحضور</div>
+        <div style="font-size:36px; font-weight:bold;" id="totalAttendance">0</div>
+      </div>
+      <div class="stat-box" style="background:linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color:white; padding:20px; border-radius:8px; text-align:center;">
+        <div style="font-size:14px; opacity:0.9;"><i class="fas fa-chart-line"></i> متوسط الحضور</div>
+        <div style="font-size:36px; font-weight:bold;" id="avgAttendance">0%</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- الرسوم البيانية -->
+  <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(500px, 1fr)); gap:20px; max-width:1400px; margin:20px auto;">
+    
+    <!-- توزيع الطلاب حسب المجموعات -->
+    <div style="background:white; padding:20px; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+      <h3 style="color:#667eea; margin-top:0;"><i class="fas fa-users"></i> توزيع الطلاب حسب المجموعات</h3>
+      <canvas id="groupsChart"></canvas>
+    </div>
+
+    <!-- توزيع الطلاب حسب السنتر -->
+    <div style="background:white; padding:20px; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+      <h3 style="color:#667eea; margin-top:0;"><i class="fas fa-building"></i> توزيع الطلاب حسب السنتر</h3>
+      <canvas id="centersChart"></canvas>
+    </div>
+
+    <!-- نسب الحضور والغياب -->
+    <div style="background:white; padding:20px; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+      <h3 style="color:#667eea; margin-top:0;"><i class="fas fa-calendar-check"></i> نسب الحضور والغياب</h3>
+      <canvas id="attendanceChart"></canvas>
+    </div>
+
+    <!-- توزيع الدرجات -->
+    <div style="background:white; padding:20px; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+      <h3 style="color:#667eea; margin-top:0;"><i class="fas fa-star"></i> توزيع الدرجات</h3>
+      <canvas id="gradesChart"></canvas>
+    </div>
+
+    <!-- أفضل 5 طلاب -->
+    <div style="background:white; padding:20px; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+      <h3 style="color:#667eea; margin-top:0;"><i class="fas fa-trophy"></i> أفضل 5 طلاب</h3>
+      <canvas id="topStudentsChart"></canvas>
+    </div>
+  </div>
+
+  <a href="index.html" class="main-btn back-btn"><i class="fas fa-home"></i> رجوع للرئيسية</a>
+  
+  <script>
+    // التحقق من تحميل المكتبات
+    if (typeof Chart === 'undefined') {
+      document.body.innerHTML = '<div style="text-align:center; padding:50px; color:red;"><h1>خطأ في التحميل</h1><p>لم يتم تحميل مكتبة Chart.js بشكل صحيح. تأكد من الاتصال بالإنترنت.</p></div>';
+    }
+  </script>
+  <script src="data.js"></script>
+  <script src="notifications.js"></script>
+  <script src="dashboard.js"></script>
+  <script>
+    function toggleDarkMode() {
+      const body = document.getElementById('body-main');
+      const isDark = body.classList.toggle('dark-mode');
+      localStorage.setItem('darkMode', isDark);
+      updateDarkModeButton();
+    }
+    
+    function updateDarkModeButton() {
+      const btn = document.getElementById('darkModeToggle');
+      if (document.getElementById('body-main').classList.contains('dark-mode')) {
+        btn.innerHTML = '<i class="fas fa-sun"></i>';
+      } else {
+        btn.innerHTML = '<i class="fas fa-moon"></i>';
+      }
+    }
+    
+    window.addEventListener('DOMContentLoaded', () => {
+      if (localStorage.getItem('darkMode') === 'true') {
+        document.getElementById('body-main').classList.add('dark-mode');
+      }
+      updateDarkModeButton();
+    });
+    
+    // ESC key handler
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape') {
+        window.history.back();
+      }
+    });
+  </script>
+  <script src="license-checker.js"></script>
+</body>
+</html>

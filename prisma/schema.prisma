@@ -1,0 +1,680 @@
+// منصة "محمد الربيعي" التعليمية - Prisma Schema
+// Database: PostgreSQL
+// Security Level: حصن سيبراني
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ====================================
+// 1. نظام المستخدمين والهوية
+// ====================================
+
+enum UserRole {
+  ADMIN
+  STUDENT
+}
+
+enum UserStatus {
+  PENDING_VERIFICATION  // في انتظار تفعيل الأدمن
+  ACTIVE                // مفعّل
+  SUSPENDED             // معلق
+  BANNED                // محظور نهائياً
+}
+
+enum CourseTargetGrade {
+  ALL
+  FIRST
+  SECOND
+  THIRD
+}
+
+model User {
+  id                String      @id @default(cuid())
+  
+  // البيانات الأساسية
+  fullName          String
+  email             String      @unique
+  phone             String      @unique  // رقم الواتساب
+  password          String      // Hashed
+  parentPhone       String?     // هاتف ولي الأمر
+  governorate       String?     // المحافظة
+  
+  // البيانات التعليمية
+  schoolName        String
+  grade             String      // الفصل الدراسي
+  address           String      // العنوان السكني
+  
+  // التحقق من الهوية
+  nationalIdImage   String?     // رابط صورة البطاقة الرقمية
+  
+  // الحالة والصلاحيات
+  role              UserRole    @default(STUDENT)
+  status            UserStatus  @default(PENDING_VERIFICATION)
+  
+  // التواريخ
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  lastLoginAt       DateTime?
+
+  // المحفظة
+  walletBalance     Float       @default(0)
+  
+  // العلاقات
+  sessions          Session[]
+  enrollments       Enrollment[]
+  lessonProgress    LessonProgress[]
+  lessonPartProgress LessonPartProgress[]
+  lessonAccessLogs  LessonAccessLog[]
+  lessonGrants      LessonGrant[]
+  examAttempts      ExamAttempt[]
+  codeUsages        CodeUsage[]
+  payments          Payment[]
+  lessonPurchases   LessonPurchase[]
+  notifications     Notification[]
+  honorBoardEntries HonorBoardEntry[]
+  studentChannel    StudentChannel?
+  attendanceRecords AttendanceRecord[]
+  
+  @@index([email])
+  @@index([phone])
+  @@index([status])
+}
+
+model StudentChannel {
+  userId      String   @id @map("user_id")
+  channelType String   @default("ONLINE") @map("channel_type")
+  updatedAt   DateTime @default(now()) @map("updated_at")
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("student_channels")
+}
+
+model AttendanceRecord {
+  id             String   @id
+  userId         String   @map("user_id")
+  attendanceDate DateTime @db.Date @map("attendance_date")
+  status         String   @default("present")
+  source         String   @default("MANUAL")
+  notes          String?
+  checkinAt      DateTime @default(now()) @map("checkin_at")
+
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, attendanceDate])
+  @@index([attendanceDate], map: "idx_attendance_records_date")
+  @@index([userId], map: "idx_attendance_records_user")
+  @@map("attendance_records")
+}
+
+// ====================================
+// 2. نظام الجهاز الواحد (Single Device Login)
+// ====================================
+
+model Session {
+  id            String    @id @default(cuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // بصمة الجهاز
+  deviceId      String    // Unique device fingerprint
+  deviceName    String?   // اسم الجهاز
+  ipAddress     String
+  userAgent     String
+  
+  // معلومات الجلسة
+  token         String    @unique  // JWT Token
+  refreshToken  String?   @unique
+  
+  // التوقيتات
+  createdAt     DateTime  @default(now())
+  expiresAt     DateTime
+  lastActiveAt  DateTime  @default(now())
+  isActive      Boolean   @default(true)
+  
+  @@index([userId])
+  @@index([deviceId])
+  @@index([token])
+}
+
+// ====================================
+// 3. نظام المحتوى التعليمي
+// ====================================
+
+model Course {
+  id            String      @id @default(cuid())
+  title         String      // مثال: "فيزياء الصف الثالث الثانوي"
+  description   String?     @db.Text
+  thumbnail     String?     // رابط صورة الكورس
+  price         Float       @default(0)
+  targetGrade   CourseTargetGrade @default(ALL)
+  
+  // الحالة
+  isPublished   Boolean     @default(false)
+
+  // العرض في الصفحة الرئيسية
+  isFeatured    Boolean     @default(false)
+  featuredOrder Int         @default(0)
+  
+  // الترتيب
+  order         Int         @default(0)
+  
+  // التواريخ
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  
+  // العلاقات
+  modules       Module[]
+  enrollments   Enrollment[]
+  
+  @@index([isPublished])
+}
+
+model Module {
+  id            String      @id @default(cuid())
+  courseId      String
+  course        Course      @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  
+  title         String      // مثال: "الوحدة الأولى: الحركة"
+  description   String?     @db.Text
+  order         Int         @default(0)
+  
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  
+  // العلاقات
+  lessons       Lesson[]
+  
+  @@index([courseId])
+}
+
+model Lesson {
+  id            String      @id @default(cuid())
+  moduleId      String
+  module        Module      @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  
+  title         String
+  description   String?     @db.Text
+  order         Int         @default(0)
+  price         Float       @default(0)
+  
+  // محتوى الدرس
+  videoId       String?     @unique
+  video         Video?      @relation(fields: [videoId], references: [id])
+  pdfUrl        String?     // رابط الملخص PDF
+  
+  // التحكم في الوصول
+  isFree        Boolean     @default(false)
+  requiresPreviousCompletion Boolean @default(false) // يتطلب إتمام الدرس السابق
+  
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  
+  // العلاقات
+  parts         LessonPart[]
+  files         LessonFile[]
+  exams         Exam[]
+  progress      LessonProgress[]
+  accessLogs    LessonAccessLog[]
+  grants        LessonGrant[]
+  codeUsages    CodeUsage[]
+  purchases     LessonPurchase[]
+  
+  @@index([moduleId])
+}
+
+model LessonPart {
+  id            String      @id @default(cuid())
+  lessonId      String
+  lesson        Lesson      @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  sectionTitle  String      @default("المحتوى الرئيسي")
+  title         String
+  description   String?     @db.Text
+  order         Int         @default(0)
+
+  provider      VideoProvider
+  videoUrl      String
+  streamingUrl  String?
+  duration      Int?
+
+  isPinned      Boolean     @default(false)
+  pinnedAt      DateTime?
+
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  progress      LessonPartProgress[]
+
+  @@index([lessonId])
+  @@index([lessonId, order])
+  @@index([isPinned])
+}
+
+model LessonFile {
+  id            String      @id @default(cuid())
+  lessonId      String
+  lesson        Lesson      @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  sectionTitle  String      @default("المحتوى الرئيسي")
+  title         String
+  fileUrl       String
+  fileType      String?
+  order         Int         @default(0)
+
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@index([lessonId])
+  @@index([lessonId, order])
+}
+
+model LessonPartProgress {
+  id            String      @id @default(cuid())
+  userId        String
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lessonPartId  String
+  lessonPart    LessonPart  @relation(fields: [lessonPartId], references: [id], onDelete: Cascade)
+
+  watchedDuration Int       @default(0)
+  isCompleted   Boolean     @default(false)
+  lastWatchedAt DateTime    @default(now())
+
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@unique([userId, lessonPartId])
+  @@index([userId])
+  @@index([lessonPartId])
+}
+
+model LessonAccessLog {
+  id            String      @id @default(cuid())
+  userId        String
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lessonId      String
+  lesson        Lesson      @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  openedAt      DateTime    @default(now())
+
+  @@index([userId])
+  @@index([lessonId])
+  @@index([openedAt])
+}
+
+model LessonGrant {
+  id            String      @id @default(cuid())
+  userId        String
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lessonId      String
+  lesson        Lesson      @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  grantedAt     DateTime    @default(now())
+  notes         String?
+
+  @@unique([userId, lessonId])
+  @@index([userId])
+  @@index([lessonId])
+}
+
+// ====================================
+// 4. نظام أمان الفيديو (الحصن السيبراني)
+// ====================================
+
+enum VideoProvider {
+  YOUTUBE         // يوتيوب (مخفي)
+  BUNNY_NET       // Bunny.net CDN
+  CUSTOM          // استضافة خاصة
+}
+
+model Video {
+  id                String          @id @default(cuid())
+  
+  // معلومات الفيديو
+  title             String
+  duration          Int?            // بالثواني
+  
+  // المصدر
+  provider          VideoProvider
+  videoUrl          String          // الرابط الأصلي (مشفر)
+  streamingUrl      String?         // HLS .m3u8 URL
+  
+  // الأمان
+  encryptionKey     String?         // مفتاح التشفير
+  requiresAuth      Boolean         @default(true)
+  
+  // العلامة المائية
+  enableWatermark   Boolean         @default(true)
+  
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  
+  // العلاقات
+  lesson            Lesson?
+  
+  @@index([provider])
+}
+
+// ====================================
+// 5. نظام الامتحانات
+// ====================================
+
+model Exam {
+  id                String      @id @default(cuid())
+  lessonId          String
+  lesson            Lesson      @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  
+  title             String
+  description       String?     @db.Text
+  passingScore      Float       @default(50) // النسبة المئوية للنجاح
+  timeLimit         Int?        // بالدقائق (اختياري)
+  maxAttempts       Int         @default(3)
+  shuffleQuestions  Boolean     @default(false)
+  preventBackNavigation Boolean @default(false)
+  
+  // القيود
+  blockNextLesson   Boolean     @default(true) // منع التقدم إذا لم يُجتز
+  
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  
+  // العلاقات
+  questions         Question[]
+  attempts          ExamAttempt[]
+  
+  @@index([lessonId])
+}
+
+enum QuestionType {
+  MULTIPLE_CHOICE
+  TRUE_FALSE
+}
+
+model Question {
+  id            String          @id @default(cuid())
+  examId        String
+  exam          Exam            @relation(fields: [examId], references: [id], onDelete: Cascade)
+  
+  questionText  String          @db.Text
+  questionImage String?         // رابط صورة السؤال (اختياري)
+  
+  type          QuestionType    @default(MULTIPLE_CHOICE)
+  order         Int             @default(0)
+  points        Float           @default(1)
+  
+  // الخيارات (JSON للمرونة)
+  options       Json            // [{text: "خيار 1", isCorrect: true}, ...]
+  
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  
+  // العلاقات
+  answers       Answer[]
+  
+  @@index([examId])
+}
+
+model ExamAttempt {
+  id            String      @id @default(cuid())
+  examId        String
+  exam          Exam        @relation(fields: [examId], references: [id], onDelete: Cascade)
+  userId        String
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // النتائج
+  score         Float       // الدرجة الفعلية
+  maxScore      Float       // الدرجة القصوى
+  percentage    Float       // النسبة المئوية
+  passed        Boolean     @default(false)
+  
+  // التوقيت
+  startedAt     DateTime    @default(now())
+  submittedAt   DateTime?
+  
+  // العلاقات
+  answers       Answer[]
+  
+  @@index([userId])
+  @@index([examId])
+}
+
+model Answer {
+  id            String      @id @default(cuid())
+  attemptId     String
+  attempt       ExamAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  questionId    String
+  question      Question    @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  
+  // الإجابة المختارة
+  selectedOption Json       // الخيار الذي اختاره الطالب
+  isCorrect     Boolean     @default(false)
+  pointsEarned  Float       @default(0)
+  
+  createdAt     DateTime    @default(now())
+  
+  @@index([attemptId])
+  @@index([questionId])
+}
+
+// ====================================
+// 6. نظام الأكواد الشاملة (Universal Codes)
+// ====================================
+
+enum CodeType {
+  LESSON_UNLOCK    // فتح درس واحد
+  COURSE_ACCESS    // الوصول لكورس كامل
+}
+
+enum CodeStatus {
+  ACTIVE
+  USED
+  EXPIRED
+  REVOKED
+}
+
+model Code {
+  id            String      @id @default(cuid())
+  
+  // الكود
+  code          String      @unique // 12 حرف/رقم فريد
+  type          CodeType    @default(LESSON_UNLOCK)
+  
+  // القيمة
+  credits       Int         @default(1) // عدد "نقاط فتح الدروس"
+  
+  // الحالة
+  status        CodeStatus  @default(ACTIVE)
+  
+  // التواريخ
+  createdAt     DateTime    @default(now())
+  expiresAt     DateTime?   // تاريخ انتهاء اختياري
+  
+  // العلاقات
+  usages        CodeUsage[]
+  
+  @@index([code])
+  @@index([status])
+}
+
+model CodeUsage {
+  id            String      @id @default(cuid())
+  codeId        String
+  code          Code        @relation(fields: [codeId], references: [id], onDelete: Cascade)
+  userId        String
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // الاستخدام
+  lessonId      String?
+  lesson        Lesson?     @relation(fields: [lessonId], references: [id])
+  creditsUsed   Int         @default(1)
+  
+  usedAt        DateTime    @default(now())
+  
+  @@index([codeId])
+  @@index([userId])
+}
+
+// ====================================
+// 7. نظام الدفع
+// ====================================
+
+enum PaymentMethod {
+  FAWRY
+  PAYMOB
+  VODAFONE_CASH
+  CODE  // عبر الكود
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+model Payment {
+  id                String          @id @default(cuid())
+  userId            String
+  user              User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // التفاصيل
+  amount            Float
+  method            PaymentMethod
+  status            PaymentStatus   @default(PENDING)
+  
+  // المعرفات الخارجية
+  transactionId     String?         @unique
+  providerReference String?         // مرجع Fawry/Paymob
+  transferImageUrl  String?         // صورة التحويل اليدوي
+  reviewedAt        DateTime?
+  
+  // ما تم شراؤه
+  enrollmentId      String?
+  enrollment        Enrollment?     @relation(fields: [enrollmentId], references: [id])
+  
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  
+  @@index([userId])
+  @@index([status])
+}
+
+model LessonPurchase {
+  id            String      @id @default(cuid())
+  userId        String
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lessonId      String
+  lesson        Lesson      @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  amount        Float
+  createdAt     DateTime    @default(now())
+
+  @@unique([userId, lessonId])
+  @@index([userId])
+  @@index([lessonId])
+}
+
+model HonorBoardEntry {
+  id            String      @id @default(cuid())
+  studentId     String
+  student       User        @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  reason        String
+  order         Int         @default(0)
+  isActive      Boolean     @default(true)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@index([studentId])
+  @@index([isActive])
+}
+
+model SiteSetting {
+  id                 String   @id @default(cuid())
+  honorBoardEnabled  Boolean  @default(true)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+// ====================================
+// 8. نظام التسجيل في الكورسات
+// ====================================
+
+model Enrollment {
+  id            String      @id @default(cuid())
+  userId        String
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId      String
+  course        Course      @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  
+  // الحالة
+  isActive      Boolean     @default(true)
+  
+  // التواريخ
+  enrolledAt    DateTime    @default(now())
+  expiresAt     DateTime?   // تاريخ انتهاء الصلاحية (اختياري)
+  
+  // العلاقات
+  payments      Payment[]
+  
+  @@unique([userId, courseId])
+  @@index([userId])
+  @@index([courseId])
+}
+
+// ====================================
+// 9. نظام تتبع التقدم
+// ====================================
+
+model LessonProgress {
+  id            String      @id @default(cuid())
+  userId        String
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lessonId      String
+  lesson        Lesson      @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  
+  // التقدم
+  watchedDuration Int       @default(0) // بالثواني
+  isCompleted   Boolean     @default(false)
+  lastWatchedAt DateTime    @default(now())
+  
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  
+  @@unique([userId, lessonId])
+  @@index([userId])
+  @@index([lessonId])
+}
+
+// ====================================
+// 10. نظام الإشعارات (Broadcast)
+// ====================================
+
+enum NotificationType {
+  BROADCAST       // رسالة جماعية من الأدمن
+  PAYMENT_SUCCESS
+  COURSE_UNLOCKED
+  EXAM_RESULT
+  ACCOUNT_STATUS
+}
+
+model Notification {
+  id            String            @id @default(cuid())
+  userId        String
+  user          User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  type          NotificationType
+  title         String
+  message       String            @db.Text
+  
+  // الحالة
+  isRead        Boolean           @default(false)
+  
+  createdAt     DateTime          @default(now())
+  
+  @@index([userId])
+  @@index([isRead])
+}

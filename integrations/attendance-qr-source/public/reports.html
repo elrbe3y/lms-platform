@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: https:; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; font-src 'self' https:; connect-src 'self' http://localhost:* https:; object-src 'none'; base-uri 'self'; form-action 'self'; media-src 'self' data:">
+  <title>تقارير الحضور</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body id="body-main">
+  <!-- Loading Indicator -->
+  <div id="loadingIndicator" class="loading-overlay" style="display:none;">
+    <div class="spinner"></div>
+    <p>جاري التحميل...</p>
+    <p style="font-size: 1em; margin-top: 10px; font-weight: 600;">سبحان الله وبحمده سبحان الله العظيم</p>
+  </div>
+  
+  <header class="header">
+    <div style="display: flex; justify-content: space-between; align-items: center; padding: 0 20px;">
+      <div>
+        <h1 class="header-title">أ/محمد الربيعي</h1>
+        <p class="header-subtitle">تقارير الحضور</p>
+      </div>
+      <div style="display: flex; gap: 10px;">
+        <button id="exitBtn" class="icon-btn" title="العودة للصفحة الرئيسية (ESC)" onclick="window.history.back()">
+          <i class="fas fa-arrow-right"></i>
+        </button>
+        <button id="darkModeToggle" class="icon-btn" title="تبديل الوضع الليلي" onclick="toggleDarkMode()">
+          <i class="fas fa-moon"></i>
+        </button>
+        <a href="settings.html" class="icon-btn" title="الإعدادات" style="text-decoration:none;color:inherit;">
+          <i class="fas fa-cog"></i>
+        </a>
+      </div>
+    </div>
+  </header>
+  <h2 id="reportTitle">تقارير الحضور</h2>
+  
+  <!-- فلاتر البحث المتقدمة -->
+  <div class="filters-container" style="background:white; padding:20px; border-radius:10px; margin:20px auto; max-width:1200px; box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+    <h3 class="filter-title" style="color:#667eea; margin-top:0;">فلاتر البحث</h3>
+    
+    <div class="filters-grid filters-grid-primary" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(250px, 1fr)); gap:15px; margin-bottom:15px;">
+      <div class="filter-field">
+        <label><i class="fas fa-user"></i> بحث بالاسم:
+          <input type="text" id="searchName" class="filter-input" placeholder="أدخل اسم الطالب" style="width:100%; padding:8px; border:2px solid #ddd; border-radius:5px;">
+        </label>
+      </div>
+      
+      <div class="filter-field">
+        <label><i class="fas fa-calendar"></i> من تاريخ:
+          <input type="date" id="searchDateFrom" class="filter-input" style="width:100%; padding:8px; border:2px solid #ddd; border-radius:5px;">
+        </label>
+      </div>
+      
+      <div class="filter-field">
+        <label><i class="fas fa-calendar"></i> إلى تاريخ:
+          <input type="date" id="searchDateTo" class="filter-input" style="width:100%; padding:8px; border:2px solid #ddd; border-radius:5px;">
+        </label>
+      </div>
+      
+      <div class="filter-field">
+        <label><i class="fas fa-sort"></i> ترتيب حسب:
+          <select id="sortBy" class="filter-input" style="width:100%; padding:8px; border:2px solid #ddd; border-radius:5px;">
+            <option value="date-desc">التاريخ (الأحدث)</option>
+            <option value="date-asc">التاريخ (الأقدم)</option>
+            <option value="name-asc">الاسم (أ-ي)</option>
+            <option value="name-desc">الاسم (ي-أ)</option>
+            <option value="total-desc">المجموع (الأعلى)</option>
+            <option value="total-asc">المجموع (الأقل)</option>
+          </select>
+        </label>
+      </div>
+    </div>
+    
+    <div class="filters-grid filters-grid-secondary" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:15px;">
+      <div class="filter-field">
+        <label><i class="fas fa-filter"></i> فلترة بالدرجات:
+          <select id="filterGrade" class="filter-input" style="width:100%; padding:8px; border:2px solid #ddd; border-radius:5px;">
+            <option value="all">الكل</option>
+            <option value="excellent">ممتاز (18-20)</option>
+            <option value="verygood">جيد جداً (14-17)</option>
+            <option value="good">جيد (10-13)</option>
+            <option value="weak">ضعيف (أقل من 10)</option>
+          </select>
+        </label>
+      </div>
+      
+      <div class="filter-field">
+        <label><i class="fas fa-users"></i> فلترة بالمجموعة:
+          <select id="filterGroup" class="filter-input" style="width:100%; padding:8px; border:2px solid #ddd; border-radius:5px;">
+            <option value="all">الكل</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="filter-field filter-absent">
+        <label><i class="fas fa-user-times"></i> فلتر الغياب (يوم محدد):</label>
+        <div style="margin-top:6px;">
+          <input type="date" id="absentDate" class="filter-input" style="width:100%; padding:8px; border:2px solid #ddd; border-radius:5px;">
+        </div>
+        <div style="margin-top:8px;">
+          <label style="font-size: 13px; color:#555; display:block; margin-bottom:4px;">المجموعة:</label>
+          <select id="absentGroupFilter" class="filter-input" style="width:100%; padding:8px; border:2px solid #ddd; border-radius:5px;">
+            <option value="all">الكل</option>
+          </select>
+        </div>
+        <label class="filter-check" style="display:flex; align-items:center; gap:8px; margin-top:8px; font-size: 14px; color:#555;">
+          <input type="checkbox" id="absentOnly">
+          عرض الغايبين فقط لهذا اليوم
+        </label>
+      </div>
+      
+      <div class="filters-actions" style="display:flex; align-items:flex-end; gap:10px; flex-wrap:wrap;">
+        <button id="exportReportBtn" type="button" class="main-btn filter-action-btn" style="flex:1; min-width:140px;"><i class="fas fa-download"></i> تصدير Excel</button>
+        <button id="exportAbsentBtn" type="button" class="main-btn filter-action-btn" style="flex:1; min-width:140px; background:#dc3545;"><i class="fas fa-file-excel"></i> تصدير الغياب</button>
+        <button id="printReportBtn" type="button" class="main-btn filter-action-btn" style="flex:1; min-width:120px; background:#28a745;"><i class="fas fa-print"></i> طباعة</button>
+        <button id="clearFiltersBtn" type="button" class="main-btn filter-action-btn" style="background:#6c757d;"><i class="fas fa-eraser"></i> مسح</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- الإحصائيات المتقدمة -->
+  <div class="stats-advanced" style="background:white; padding:20px; border-radius:10px; margin:20px auto; max-width:1200px; box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+    <h3 style="color:#667eea; margin-top:0;">إحصائيات مفصلة</h3>
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:15px;">
+      <div class="stat-box" style="background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:white; padding:15px; border-radius:8px; text-align:center;">
+        <div style="font-size:12px; opacity:0.9;">عدد السجلات</div>
+        <div style="font-size:28px; font-weight:bold;" id="totalRecords">0</div>
+      </div>
+      <div class="stat-box" style="background:linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color:white; padding:15px; border-radius:8px; text-align:center;">
+        <div style="font-size:12px; opacity:0.9;">عدد الطلاب</div>
+        <div style="font-size:28px; font-weight:bold;" id="uniqueStudents">0</div>
+      </div>
+      <div class="stat-box" style="background:linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color:white; padding:15px; border-radius:8px; text-align:center;">
+        <div style="font-size:12px; opacity:0.9;">متوسط الواجب</div>
+        <div style="font-size:28px; font-weight:bold;" id="avgHomework">0</div>
+      </div>
+      <div class="stat-box" style="background:linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color:white; padding:15px; border-radius:8px; text-align:center;">
+        <div style="font-size:12px; opacity:0.9;">متوسط الكويز</div>
+        <div style="font-size:28px; font-weight:bold;" id="avgQuiz">0</div>
+      </div>
+      <div class="stat-box" style="background:linear-gradient(135deg, #fa709a 0%, #fee140 100%); color:white; padding:15px; border-radius:8px; text-align:center;">
+        <div style="font-size:12px; opacity:0.9;">أعلى مجموع</div>
+        <div style="font-size:28px; font-weight:bold;" id="maxTotal">0</div>
+      </div>
+      <div class="stat-box" style="background:linear-gradient(135deg, #30cfd0 0%, #330867 100%); color:white; padding:15px; border-radius:8px; text-align:center;">
+        <div style="font-size:12px; opacity:0.9;">أقل مجموع</div>
+        <div style="font-size:28px; font-weight:bold;" id="minTotal">0</div>
+      </div>
+    </div>
+    
+    <!-- توزيع الدرجات -->
+    <div style="margin-top:20px; padding:15px; background:#f8f9fa; border-radius:8px;">
+      <h4 style="color:#2c3e50; margin-top:0;">توزيع مستويات الأداء</h4>
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:10px;">
+        <div style="padding:10px; background:#28a745; color:white; border-radius:5px; text-align:center;">
+          <div style="font-size:11px;">ممتاز (18-20)</div>
+          <div style="font-size:24px; font-weight:bold;" id="excellentCount">0</div>
+        </div>
+        <div style="padding:10px; background:#17a2b8; color:white; border-radius:5px; text-align:center;">
+          <div style="font-size:11px;">جيد جداً (14-17)</div>
+          <div style="font-size:24px; font-weight:bold;" id="verygoodCount">0</div>
+        </div>
+        <div style="padding:10px; background:#ffc107; color:white; border-radius:5px; text-align:center;">
+          <div style="font-size:11px;">جيد (10-13)</div>
+          <div style="font-size:24px; font-weight:bold;" id="goodCount">0</div>
+        </div>
+        <div style="padding:10px; background:#dc3545; color:white; border-radius:5px; text-align:center;">
+          <div style="font-size:11px;">ضعيف (أقل من 10)</div>
+          <div style="font-size:24px; font-weight:bold;" id="weakCount">0</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="gradeSelectContainer" style="display:none;">
+    <label>الصف:
+      <select id="gradeSelect">
+        <option value="3">أولى ثانوي</option>
+        <option value="2">ثانية ثانوي</option>
+        <option value="1">ثالثة ثانوي</option>
+      </select>
+    </label>
+  </div>
+
+  <table id="attendanceTable" style="margin-top: 20px;">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>ID</th>
+        <th>اسم الطالب</th>
+        <th>رقم الطالب</th>
+        <th>رقم ولي الأمر</th>
+        <th>التاريخ والوقت</th>
+        <th>درجة الواجب</th>
+        <th>درجة الكويز</th>
+        <th>المجموع</th>
+        <th>التقدير</th>
+        <th>ملاحظة</th>
+        <th>تعديل</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <!-- Modal لتعديل الدرجات -->
+  <div id="editModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000;">
+    <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); background:white; padding:20px; border-radius:10px; text-align:center; box-shadow:0 0 10px rgba(0,0,0,0.5); min-width:350px; max-width:90%; max-height:90vh; overflow-y:auto;">
+      <h2>تعديل درجات الطالب</h2>
+      <p id="editStudentName" style="font-weight:bold; color:#667eea; margin-bottom:20px;"></p>
+      
+      <div style="text-align:right; margin-bottom:15px;">
+        <label style="display:block; margin-bottom:5px; font-weight:600;">درجة الواجب (من 10):</label>
+        <input type="number" id="editHomework" placeholder="أدخل الدرجة" min="0" max="10" step="0.5" style="padding:10px; width:100%; border:2px solid #28a745; border-radius:5px;">
+      </div>
+      
+      <div style="text-align:right; margin-bottom:15px;">
+        <label style="display:block; margin-bottom:5px; font-weight:600;">درجة الكويز (من 10):</label>
+        <input type="number" id="editQuiz" placeholder="أدخل الدرجة" min="0" max="10" step="0.5" style="padding:10px; width:100%; border:2px solid #ffc107; border-radius:5px;">
+      </div>
+      
+      <div style="text-align:right; margin-bottom:15px;">
+        <label style="display:block; margin-bottom:5px; font-weight:600;">الدرجة النهائية للامتحان:</label>
+        <input type="number" id="editExamMax" placeholder="الافتراضي: 10" min="5" max="100" step="1" value="10" style="padding:10px; width:100%; border:2px solid #17a2b8; border-radius:5px;">
+        <small style="display:block; color:#666; margin-top:5px; font-size:12px;">💡 الدرجة الافتراضية هي 10، يمكنك تغييرها حسب الامتحان</small>
+      </div>
+      
+      <div style="text-align:right; margin-bottom:15px;">
+        <label style="display:block; margin-bottom:5px; font-weight:600;">ملاحظة للطالب:</label>
+        <textarea id="editStudentNote" placeholder="أضف ملاحظة أو تعليق (اختياري)" rows="3" style="padding:10px; width:100%; border:2px solid #667eea; border-radius:5px; resize:vertical; font-family:inherit;"></textarea>
+        <small style="display:block; color:#666; margin-top:5px; font-size:12px;">📝 مثال: أحسنت، تحسن ملحوظ، يحتاج مراجعة</small>
+        <label style="display:flex; align-items:center; gap:8px; justify-content:flex-start; margin-top:10px; font-size:13px; color:#555;">
+          <input type="checkbox" id="sendNoteCheckbox" style="width:16px; height:16px;" checked>
+          <span>📱 إرسال الملاحظة في رسالة واتساب</span>
+        </label>
+      </div>
+      
+      <label style="display:flex; align-items:center; gap:8px; justify-content:center; margin-bottom:20px; font-size:14px; color:#555; background:#f8f9fa; padding:10px; border-radius:5px;">
+        <input type="checkbox" id="editExamAbsent" style="width:18px; height:18px;">
+        <span style="font-weight:600;">الطالب لم يحضر الامتحان</span>
+      </label>
+      
+      <div style="display:flex; gap:10px; justify-content:center;">
+        <button id="editSaveBtn" class="main-btn" style="background:#28a745; flex:1;"><i class="fas fa-save"></i> حفظ التغييرات</button>
+        <button id="editCancelBtn" class="main-btn" style="background:#dc3545; flex:1;"><i class="fas fa-times"></i> إلغاء</button>
+      </div>
+    </div>
+  </div>
+
+  <a href="index.html" class="main-btn back-btn"><i class="fas fa-home"></i> رجوع للرئيسية</a>
+  <script src="data.js"></script>
+  <script src="notifications.js"></script>
+  <script src="reports.js"></script>
+  <script>
+    function toggleDarkMode() {
+      const body = document.getElementById('body-main');
+      const isDark = body.classList.toggle('dark-mode');
+      localStorage.setItem('darkMode', isDark);
+      updateDarkModeButton();
+    }
+    
+    function updateDarkModeButton() {
+      const btn = document.getElementById('darkModeToggle');
+      if (document.getElementById('body-main').classList.contains('dark-mode')) {
+        btn.innerHTML = '<i class="fas fa-sun"></i>';
+      } else {
+        btn.innerHTML = '<i class="fas fa-moon"></i>';
+      }
+    }
+    
+    window.addEventListener('DOMContentLoaded', () => {
+      if (localStorage.getItem('darkMode') === 'true') {
+        document.getElementById('body-main').classList.add('dark-mode');
+      }
+      updateDarkModeButton();
+    });
+    
+    // ESC key handler
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape') {
+        window.history.back();
+      }
+    });
+  </script>
+  <script src="logger.js"></script>
+  <script src="license-checker.js"></script>
+</body>
+</html>

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>صفحة التصحيح</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    body { background: #f5f5f5; padding: 20px; }
+    body.dark-mode { background: #1e1e1e; color: #e0e0e0; }
+    body.dark-mode .card { background: #2d2d2d; color: #e0e0e0; }
+    body.dark-mode h1, body.dark-mode h2 { color: #8b9cff; }
+    body.dark-mode pre { background: #1e1e1e; color: #e0e0e0; }
+    .container { max-width: 1200px; margin: 0 auto; }
+    .card { background: #fff; padding: 15px; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    h1 { color: #667eea; display: flex; justify-content: space-between; align-items: center; }
+    h2 { color: #333; margin-top: 20px; border-bottom: 2px solid #667eea; padding-bottom: 10px; }
+    pre { background: #f4f4f4; padding: 10px; border-radius: 5px; overflow-x: auto; }
+    .btn { background: #667eea; color: #fff; padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer; margin: 5px 0; }
+    .btn:hover { background: #764ba2; }
+    .error { color: #d32f2f; }
+    .success { color: #388e3c; }
+    .dark-toggle { background: #444; color: #fff; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; }
+  </style>
+</head>
+<body id="body-main">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: https:; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; font-src 'self' https:; connect-src 'self' http://localhost:* https:; object-src 'none'; base-uri 'self'; form-action 'self'; media-src 'self' data:">
+  <div class="container">
+    <h1>
+      <span><i class="fas fa-bug"></i> صفحة التصحيح</span>
+      <button class="dark-toggle" onclick="toggleDarkMode()" id="darkModeToggle">
+        <i class="fas fa-moon"></i>
+      </button>
+    </h1>
+    
+    <div class="card">
+      <h2>معلومات التخزين</h2>
+      <p><strong>حجم localStorage:</strong> <span id="storageSize">-</span></p>
+      <button class="btn" onclick="clearAllData()">حذف جميع البيانات</button>
+      <button class="btn" onclick="location.href='students.html'">ذهاب لإدارة الطلاب</button>
+    </div>
+
+    <div class="card">
+      <h2>الطلاب المسجلين</h2>
+      <div id="studentsList"></div>
+    </div>
+
+    <div class="card">
+      <h2>سجل الحضور</h2>
+      <div id="attendanceList"></div>
+    </div>
+
+    <div class="card">
+      <h2>JSON البيانات</h2>
+      <pre id="jsonData"></pre>
+    </div>
+  </div>
+
+  <script src="data.js"></script>
+  <script>
+    console.log('=== Debug Page Loaded ===');
+    
+    function updateDisplay() {
+      console.log('Updating display...');
+      // حجم التخزين
+      const students = JSON.parse(localStorage.getItem('students') || '[]');
+      const attendance = JSON.parse(localStorage.getItem('attendance') || '[]');
+      
+      console.log('Students found:', students.length);
+      console.log('Attendance records found:', attendance.length);
+      console.log('Students data:', students);
+      
+      document.getElementById('storageSize').textContent = 
+        `الطلاب: ${students.length} | الحضور: ${attendance.length}`;
+
+      // قائمة الطلاب
+      const studentsList = document.getElementById('studentsList');
+      if (students.length === 0) {
+        studentsList.innerHTML = '<p class="error">لا توجد طلاب مسجلين</p>';
+      } else {
+        studentsList.innerHTML = students.map((s, i) => `
+          <div style="padding:10px; background:#f9f9f9; margin:5px 0; border-radius:5px;">
+            <strong>${i+1}. ${s.name}</strong> (ID: ${s.id})<br/>
+            هاتف: ${s.studentPhone} | ولي الأمر: ${s.guardianPhone}<br/>
+            سنتر: ${s.center} | مجموعة: ${s.group_name} | صف: ${s.grade}<br/>
+            <a href="student-profile.html?id=${s.id}" style="color:#667eea;">عرض البروفايل</a>
+          </div>
+        `).join('');
+      }
+
+      // سجل الحضور
+      const attendanceList = document.getElementById('attendanceList');
+      if (attendance.length === 0) {
+        attendanceList.innerHTML = '<p class="error">لا يوجد سجل حضور</p>';
+      } else {
+        attendanceList.innerHTML = `<p class="success">عدد السجلات: ${attendance.length}</p>` +
+          attendance.slice(-5).map(a => `
+            <div style="padding:10px; background:#f9f9f9; margin:5px 0; border-radius:5px;">
+              <strong>${a.name}</strong> - ${a.date} ${a.time}<br/>
+              واجب: ${a.homework} | اختبار: ${a.quiz}
+            </div>
+          `).join('');
+      }
+
+      // JSON
+      document.getElementById('jsonData').textContent = JSON.stringify({
+        students: students.length,
+        attendance: attendance.length,
+        sampleStudent: students[0] || null,
+        sampleAttendance: attendance[0] || null
+      }, null, 2);
+      
+      console.log('Display updated successfully');
+    }
+
+    function clearAllData() {
+      if (confirm('هل تريد حذف جميع البيانات؟')) {
+        localStorage.clear();
+    function toggleDarkMode() {
+      const body = document.getElementById('body-main');
+      const isDark = body.classList.toggle('dark-mode');
+      localStorage.setItem('darkMode', isDark);
+      updateDarkModeButton();
+    }
+    
+    function updateDarkModeButton() {
+      const btn = document.getElementById('darkModeToggle');
+      if (document.getElementById('body-main').classList.contains('dark-mode')) {
+        btn.innerHTML = '<i class="fas fa-sun"></i>';
+      } else {
+        btn.innerHTML = '<i class="fas fa-moon"></i>';
+      }
+    }
+
+    // تحميل Dark Mode عند بداية الصفحة
+    window.addEventListener('DOMContentLoaded', () => {
+      loadDebugInfo();
+      if (localStorage.getItem('darkMode') === 'true') {
+        document.getElementById('body-main').classList.add('dark-mode');
+      }
+      updateDarkModeButton();
+    });
+        alert('تم حذف البيانات');
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', updateDisplay);
+  </script>
+</body>
+</html>

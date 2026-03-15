@@ -1,0 +1,54 @@
+{
+  "name": "mohamed-rabiei-lms",
+  "version": "1.0.0",
+  "description": "منصة محمد الربيعي التعليمية - نظام إدارة التعلم المتقدم",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "db:migrate": "prisma migrate dev",
+    "db:studio": "prisma studio",
+    "db:seed": "ts-node prisma/seed.ts"
+  },
+  "dependencies": {
+    "@prisma/adapter-pg": "^7.4.2",
+    "@prisma/client": "^7.4.2",
+    "bcryptjs": "^2.4.3",
+    "clsx": "^2.1.0",
+    "dotenv": "^17.3.1",
+    "hls.js": "^1.5.0",
+    "jsonwebtoken": "^9.0.2",
+    "next": "^14.2.0",
+    "pg": "^8.19.0",
+    "react": "^18.3.0",
+    "react-dom": "^18.3.0",
+    "react-player": "^2.16.0",
+    "redis": "^4.6.0",
+    "tailwind-merge": "^2.3.0",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/jsonwebtoken": "^9.0.6",
+    "@types/node": "^20.12.0",
+    "@types/pg": "^8.18.0",
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
+    "autoprefixer": "^10.4.0",
+    "eslint": "^8.57.0",
+    "eslint-config-next": "^14.2.0",
+    "postcss": "^8.4.0",
+    "prisma": "^7.4.2",
+    "tailwindcss": "^3.4.0",
+    "ts-node": "^10.9.0",
+    "typescript": "^5.4.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}

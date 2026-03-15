@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>تفعيل التطبيق | نظام إدارة الحضور</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Cairo', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .activation-container {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      max-width: 500px;
+      width: 90%;
+      padding: 40px;
+      text-align: center;
+      animation: slideUp 0.5s ease-out;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .lock-icon {
+      font-size: 80px;
+      color: #667eea;
+      margin-bottom: 20px;
+      animation: bounce 2s infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    h1 {
+      color: #2c3e50;
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      color: #7f8c8d;
+      margin-bottom: 30px;
+      font-size: 14px;
+    }
+
+    .input-group {
+      margin-bottom: 20px;
+      text-align: right;
+    }
+
+    .input-group label {
+      display: block;
+      color: #2c3e50;
+      font-weight: 600;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 15px;
+      border: 2px solid #ecf0f1;
+      border-radius: 10px;
+      font-size: 14px;
+      font-family: 'Courier New', monospace;
+      transition: all 0.3s;
+      box-sizing: border-box;
+    }
+
+    .input-group input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .activate-btn {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 10px;
+    }
+
+    .activate-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .activate-btn:disabled {
+      background: #95a5a6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .status-message {
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 10px;
+      font-size: 14px;
+      display: none;
+    }
+
+    .status-message.success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .status-message.error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    .status-message.info {
+      background: #d1ecf1;
+      color: #0c5460;
+      border: 1px solid #bee5eb;
+    }
+
+    .license-info {
+      margin-top: 20px;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 10px;
+      text-align: right;
+      display: none;
+    }
+
+    .license-info h3 {
+      color: #667eea;
+      margin-top: 0;
+      margin-bottom: 15px;
+      font-size: 18px;
+    }
+
+    .license-info p {
+      margin: 8px 0;
+      color: #2c3e50;
+      font-size: 14px;
+    }
+
+    .license-info strong {
+      color: #667eea;
+    }
+
+    .skip-btn {
+      margin-top: 15px;
+      color: #7f8c8d;
+      text-decoration: none;
+      font-size: 13px;
+      display: inline-block;
+      transition: color 0.3s;
+    }
+
+    .skip-btn:hover {
+      color: #2c3e50;
+    }
+
+    .loading {
+      display: none;
+      margin-top: 20px;
+    }
+
+    .spinner {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #667eea;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="activation-container">
+    <i class="fas fa-lock lock-icon"></i>
+    <h1>تفعيل التطبيق</h1>
+    <p class="subtitle">أدخل كود التفعيل لبدء استخدام التطبيق</p>
+
+    <!-- Device ID Display -->
+    <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; margin-bottom: 20px; text-align: right;">
+      <p style="margin: 0; color: #2c3e50; font-size: 14px;">
+        <strong>🔑 معرف الجهاز الفريد (Hardware ID):</strong>
+      </p>
+      <p id="deviceIdDisplay" style="margin: 8px 0 0 0; color: #667eea; font-family: 'Courier New', monospace; font-size: 12px; word-break: break-all; user-select: all; cursor: text;">
+        جاري التحميل...
+      </p>
+      <button onclick="copyDeviceId()" class="main-btn" style="width: 100%; margin-top: 10px; padding: 10px; font-size: 13px; background: #95a5a6;">
+        <i class="fas fa-copy"></i> نسخ معرف الجهاز
+      </button>
+      <button onclick="contactDeveloper()" class="main-btn" style="width: 100%; margin-top: 8px; padding: 10px; font-size: 13px; background: #25D366;">
+        <i class="fab fa-whatsapp"></i> تواصل مع المطور عبر واتساب
+      </button>
+      <p style="margin: 8px 0 0 0; color: #7f8c8d; font-size: 11px;">
+        🔐 <strong>المعرف فريد لجهازك:</strong> مبني على بصمة الهاردوير (GPU + معالج + شاشة)<br>
+        ⚠️ أرسل هذا المعرف للمطور للحصول على كود التفعيل الخاص بجهازك فقط
+      </p>
+    </div>
+
+    <!-- معلومات نظام الحماية -->
+    <div style="background: #e8f5e9; border-right: 4px solid #4caf50; padding: 12px; border-radius: 8px; margin-bottom: 20px; text-align: right;">
+      <p style="margin: 0; color: #2e7d32; font-size: 13px; line-height: 1.6;">
+        <strong>🔒 نظام حماية متقدم:</strong><br>
+        • معرف فريد مبني على بصمة الهاردوير (Canvas + WebGL + GPU)<br>
+        • الترخيص مرتبط بالجهاز ولا يمكن نقله لجهاز آخر<br>
+        • حماية ضد التلاعب بتاريخ ووقت الجهاز<br>
+        • يتم احتساب المدة حتى عند إغلاق التطبيق<br>
+        • يمكنك إغلاق الجهاز لأي فترة خلال الإجازات
+      </p>
+    </div>
+
+    <div class="input-group">
+      <label for="licenseKey">كود التفعيل:</label>
+      <input type="text" id="licenseKey" placeholder="أدخل كود التفعيل هنا" autocomplete="off">
+    </div>
+
+    <button class="activate-btn" onclick="activateApp()">
+      <i class="fas fa-key"></i> تفعيل الآن
+    </button>
+
+    <!-- زر المطور معطل مؤقتاً -->
+    <!-- <button id="devClearLicenseBtn" class="main-btn" onclick="clearLocalLicense()" style="width: 100%; margin-top: 10px; padding: 10px; font-size: 13px; background: #e74c3c; display: none;">
+      <i class="fas fa-trash"></i> مسح الترخيص المحلي (مطور)
+    </button> -->
+
+    <div class="loading">
+      <div class="spinner"></div>
+    </div>
+
+    <div class="status-message" id="statusMessage"></div>
+
+    <div class="license-info" id="licenseInfo"></div>
+  </div>
+
+  <script>
+    let currentDeviceId = '';
+
+    // التحقق إذا كان التطبيق مفعل مسبقاً
+    window.addEventListener('DOMContentLoaded', () => {
+      // توليد وعرض معرف الجهاز
+      currentDeviceId = generateDeviceId();
+      document.getElementById('deviceIdDisplay').textContent = currentDeviceId;
+
+      // وضع المطور معطل مؤقتاً
+      /*
+      // إظهار زر المطور فقط عند تفعيل وضع المطور
+      const devClearBtn = document.getElementById('devClearLicenseBtn');
+      const urlParams = new URLSearchParams(window.location.search);
+      const isDevMode = localStorage.getItem('devMode') === '1' || urlParams.get('dev') === '1';
+      if (devClearBtn && isDevMode) {
+        devClearBtn.style.display = 'block';
+      }
+      */
+
+      const license = JSON.parse(localStorage.getItem('appLicense') || '{}');
+      if (license.activated && license.expiryDate) {
+        const expiryDate = new Date(license.expiryDate);
+        if (license.type === 'lifetime' || expiryDate > new Date()) {
+          // التحقق من صحة التاريخ
+          if (checkSystemTimeIntegrity(license)) {
+            showLicenseInfo(license);
+          } else {
+            showMessage('❌ تم اكتشاف تلاعب بتاريخ النظام', 'error');
+            localStorage.removeItem('appLicense');
+          }
+        }
+      }
+    });
+
+    // وضع المطور معطل مؤقتاً
+    /*
+    // تفعيل وضع المطور باختصار Ctrl+A+S+D
+    const devKeys = { a: false, s: false, d: false };
+    window.addEventListener('keydown', (e) => {
+      if (!e.ctrlKey) return;
+      const key = String(e.key || '').toLowerCase();
+      if (key === 'a' || key === 's' || key === 'd') {
+        devKeys[key] = true;
+      }
+
+      if (devKeys.a && devKeys.s && devKeys.d) {
+        localStorage.setItem('devMode', '1');
+        const devClearBtn = document.getElementById('devClearLicenseBtn');
+        if (devClearBtn) {
+          devClearBtn.style.display = 'block';
+        }
+        showMessage('✅ تم تفعيل وضع المطور', 'success');
+      }
+    });
+
+    window.addEventListener('keyup', (e) => {
+      const key = String(e.key || '').toLowerCase();
+      if (key === 'a' || key === 's' || key === 'd') {
+        devKeys[key] = false;
+      }
+    });
+    */
+
+    function copyDeviceId() {
+      const deviceId = document.getElementById('deviceIdDisplay').textContent;
+      navigator.clipboard.writeText(deviceId).then(() => {
+        showMessage('✅ تم نسخ معرف الجهاز', 'success');
+      }).catch(() => {
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = deviceId;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        showMessage('✅ تم نسخ معرف الجهاز', 'success');
+      });
+    }
+
+    function clearLocalLicense() {
+      if (!confirm('هل تريد حذف الترخيص المحلي من هذا الجهاز؟')) {
+        return;
+      }
+
+      // تسجيل الحدث
+      if (window.logger) {
+        const license = JSON.parse(localStorage.getItem('appLicense') || '{}');
+        window.logger.warn('LICENSE_CLEARED', 'تم حذف الترخيص المحلي', {
+          licenseType: license.type,
+          wasActivated: license.activated
+        });
+      }
+
+      localStorage.setItem('forceDeactivate', '1');
+      localStorage.removeItem('appLicense');
+      localStorage.removeItem('usedLicenses');
+      localStorage.removeItem('licenseActivatedAt');
+
+      const licenseInfo = document.getElementById('licenseInfo');
+      if (licenseInfo) {
+        licenseInfo.innerHTML = '';
+        licenseInfo.style.display = 'none';
+      }
+
+      showMessage('✅ تم مسح الترخيص المحلي بنجاح', 'success');
+    }
+
+    function contactDeveloper() {
+      const deviceId = currentDeviceId || document.getElementById('deviceIdDisplay').textContent || '';
+      const phone = '201080455031';
+      const message = `السلام عليكم\nأحتاج كود تفعيل للتطبيق.\nرقم الجهاز: ${deviceId}`;
+      const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+      window.open(url, '_blank');
+    }
+
+    async function activateApp() {
+      const licenseKey = document.getElementById('licenseKey').value.trim();
+      
+      if (!licenseKey) {
+        showMessage('الرجاء إدخال كود التفعيل', 'error');
+        return;
+      }
+
+      const btn = document.querySelector('.activate-btn');
+      const loading = document.querySelector('.loading');
+      
+      btn.disabled = true;
+      loading.style.display = 'block';
+
+      try {
+        // التحقق من الكود
+        const result = await verifyLicense(licenseKey, currentDeviceId);
+        
+        if (result.valid) {
+          // التحقق من أن الكود لم يستخدم من قبل (نسمح بتجديد الترخيص بأكواد جديدة)
+          const usedLicenses = JSON.parse(localStorage.getItem('usedLicenses') || '[]');
+          if (usedLicenses.includes(licenseKey)) {
+            // إذا كان الكود مستخدماً، نتحقق إذا كان يحاول التجديد
+            const existingLicense = JSON.parse(localStorage.getItem('appLicense') || '{}');
+            if (existingLicense.licenseKey === licenseKey) {
+              showMessage('⚠️ هذا الكود مفعّل بالفعل على هذا الجهاز', 'error');
+              btn.disabled = false;
+              loading.style.display = 'none';
+              return;
+            }
+            // إذا كان كود مختلف، نسمح بالتفعيل (إمكانية تعدد الأكواد)
+          }
+
+          // جلب الترخيص الحالي إن وجد
+          const existingLicense = JSON.parse(localStorage.getItem('appLicense') || '{}');
+          let newExpiryDate = result.data.expiryDate;
+          
+          // إذا كان الترخيص الجديد ليس lifetime وكان هناك ترخيص حالي فعال
+          if (result.data.type !== 'lifetime' && existingLicense.activated) {
+            const now = new Date();
+            const existingExpiry = existingLicense.expiryDate ? new Date(existingLicense.expiryDate) : null;
+            
+            // إذا كان الترخيص الحالي ما زال ساري المفعول
+            if (existingExpiry && existingExpiry > now) {
+              // حساب الأيام المتبقية من الترخيص الحالي
+              const remainingDays = Math.ceil((existingExpiry - now) / (1000 * 60 * 60 * 24));
+              
+              // حساب أيام الترخيص الجديد
+              const newLicenseDays = result.data.durationDays || 0;
+              
+              // إضافة المدتين معاً
+              const totalDays = remainingDays + newLicenseDays;
+              const newDate = new Date(now);
+              newDate.setDate(newDate.getDate() + totalDays);
+              newExpiryDate = newDate.toISOString().split('T')[0];
+              
+              showMessage(`✅ تم دمج الترخيصين! المدة المتبقية: ${remainingDays} يوم + ${newLicenseDays} يوم جديد = ${totalDays} يوم إجمالي`, 'success');
+            } else {
+              showMessage('✅ تم تفعيل التطبيق بنجاح!', 'success');
+            }
+          } else if (result.data.type === 'lifetime') {
+            showMessage('✅ تم تفعيل الترخيص مدى الحياة!', 'success');
+          } else {
+            showMessage('✅ تم تفعيل التطبيق بنجاح!', 'success');
+          }
+
+          // حفظ بيانات الترخيص المحدثة
+          const now = Date.now();
+          const perfNow = performance.now();
+          
+          const licenseData = {
+            activated: true,
+            licenseKey: licenseKey,
+            activatedAt: existingLicense.activatedAt || new Date().toISOString(),
+            lastCheck: now,
+            systemTimeSnapshot: now,
+            perfTimeSnapshot: perfNow,
+            bootTime: now - perfNow,
+            ...result.data,
+            expiryDate: newExpiryDate,
+            deviceId: currentDeviceId
+          };
+
+          localStorage.removeItem('forceDeactivate');
+          localStorage.setItem('appLicense', JSON.stringify(licenseData));
+          
+          // تسجيل الحدث
+          if (window.logger) {
+            window.logger.info('LICENSE_ACTIVATED', 'تم تفعيل الترخيص بنجاح', {
+              type: licenseData.type,
+              expiryDate: licenseData.expiryDate,
+              deviceId: currentDeviceId
+            });
+          }
+          
+          // تسجيل الكود كمستخدم
+          usedLicenses.push(licenseKey);
+          localStorage.setItem('usedLicenses', JSON.stringify(usedLicenses));
+          
+          showLicenseInfo(licenseData);
+          
+          setTimeout(() => {
+            window.location.href = 'index.html';
+          }, 3000);
+        } else {
+          if (window.logger) {
+            window.logger.error('LICENSE_ACTIVATION_FAILED', 'فشل تفعيل الترخيص', {
+              error: result.error
+            });
+          }
+          showMessage('❌ كود التفعيل غير صحيح: ' + result.error, 'error');
+        }
+      } catch (err) {
+        showMessage('❌ حدث خطأ: ' + err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        loading.style.display = 'none';
+      }
+    }
+
+    async function verifyLicense(licenseKey, deviceId) {
+      try {
+        // فك ترميز Base64
+        const decoded = atob(licenseKey);
+        const parts = decoded.split(':');
+        
+        if (parts.length !== 3) {
+          return { valid: false, error: 'تنسيق غير صحيح' };
+        }
+        
+        const [encrypted, signature, encodedDeviceId] = parts;
+        
+        // التحقق من Device ID
+        const expectedDeviceId = atob(encodedDeviceId);
+        if (expectedDeviceId !== deviceId) {
+          return { valid: false, error: 'هذا الكود غير صالح لهذا الجهاز' };
+        }
+        
+        // التحقق من التوقيع (محاكاة - في الإنتاج سيكون فعلي)
+        if (!encrypted || !signature) {
+          return { valid: false, error: 'كود تالف' };
+        }
+        
+        // في التطبيق الحقيقي، سيتم فك التشفير والتحقق من البيانات
+        // هنا نحاكي البيانات
+        try {
+          const dataStr = atob(encrypted);
+          const data = JSON.parse(dataStr);
+          
+          // التحقق من انتهاء الصلاحية
+          if (data.type !== 'lifetime' && data.expiryDate) {
+            const expiryDate = new Date(data.expiryDate);
+            if (expiryDate < new Date()) {
+              return { valid: false, error: 'انتهت صلاحية الكود' };
+            }
+          }
+          
+          return {
+            valid: true,
+            data: data
+          };
+        } catch (e) {
+          return { valid: false, error: 'فشل في قراءة بيانات الكود' };
+        }
+      } catch (err) {
+        return { valid: false, error: 'خطأ في معالجة الكود: ' + err.message };
+      }
+    }
+
+    function checkSystemTimeIntegrity(license) {
+      const now = Date.now();
+      const perfNow = performance.now();
+      
+      // إذا كانت أول مرة (نسخة قديمة)، نهيئ البيانات
+      if (!license.systemTimeSnapshot || !license.lastCheck || !license.perfTimeSnapshot) {
+        return true; // سيتم تهيئتها عند الحفظ
+      }
+      
+      // حساب الفرق الزمني الفعلي من آخر فتح
+      const realTimePassed = now - license.lastCheck;
+      
+      // التحقق من أن الوقت لم يرجع للخلف
+      if (now < license.lastCheck) {
+        console.error('❌ System time manipulation: Time went backwards');
+        return false;
+      }
+      
+      // السماح بفترات إغلاق طويلة (الإجازات)
+      // لن نحذف الترخيص، بل نستمر في التحقق من صلاحية التاريخ فقط
+      
+      // التحقق من تناسق performance.now()
+      const expectedBootTime = now - perfNow;
+      const bootTimeDiff = Math.abs(expectedBootTime - (license.bootTime || 0));
+      const perfTimePassed = perfNow - (license.perfTimeSnapshot || 0);
+      const perfTimeDiffHours = perfTimePassed / (1000 * 60 * 60);
+      
+      // نتحقق فقط إذا كان perfNow أكبر بساعة على الأقل (لأن إعادة التشغيل تعيد perfNow للصفر)
+      if (bootTimeDiff > 10000 && perfTimeDiffHours > 1) {
+        console.error('❌ Time manipulation: Boot time inconsistency');
+        return false;
+      }
+      
+      return true;
+    }
+
+    function showMessage(message, type) {
+      const statusMessage = document.getElementById('statusMessage');
+      statusMessage.textContent = message;
+      statusMessage.className = `status-message ${type}`;
+      statusMessage.style.display = 'block';
+    }
+
+    function showLicenseInfo(data) {
+      const licenseInfo = document.getElementById('licenseInfo');
+      
+      const typeTitles = {
+        'hour': 'ساعة واحدة',
+        'day': 'يوم واحد',
+        'week': 'أسبوع',
+        'month': 'شهر',
+        '3months': '3 أشهر',
+        '6months': '6 أشهر',
+        'year': 'سنة',
+        '2years': 'سنتين',
+        '3years': '3 سنوات',
+        'lifetime': 'مدى الحياة',
+        'yearly': 'سنة' // للتوافق مع النظام القديم
+      };
+      
+      let html = '<h3>معلومات الترخيص</h3>';
+      html += `<p><strong>الحالة:</strong> مفعل ✅</p>`;
+      
+      if (data.type === 'lifetime') {
+        html += '<p><strong>النوع:</strong> ترخيص مدى الحياة 🎉</p>';
+        html += '<p style="background: #e8f5e9; padding: 15px; border-radius: 8px; margin: 10px 0;"><strong>⏰ الوقت المتبقي:</strong> <span style="color: #2e7d32; font-size: 18px; font-weight: bold;">مدى الحياة ∞</span></p>';
+      } else {
+        const typeLabel = typeTitles[data.type] || data.type;
+        html += `<p><strong>النوع:</strong> ترخيص ${typeLabel}</p>`;
+        if (data.expiryDate) {
+          const expiryDate = new Date(data.expiryDate);
+          const now = new Date();
+          
+          // حساب الوقت المتبقي بالتفصيل
+          const diff = expiryDate - now;
+          
+          if (diff > 0) {
+            // حساب السنوات والأشهر والأيام والساعات والدقائق
+            const totalSeconds = Math.floor(diff / 1000);
+            const totalMinutes = Math.floor(totalSeconds / 60);
+            const totalHours = Math.floor(totalMinutes / 60);
+            const totalDays = Math.floor(totalHours / 24);
+            
+            const years = Math.floor(totalDays / 365);
+            const remainingDaysAfterYears = totalDays % 365;
+            const months = Math.floor(remainingDaysAfterYears / 30);
+            const days = remainingDaysAfterYears % 30;
+            const hours = totalHours % 24;
+            const minutes = totalMinutes % 60;
+            const seconds = totalSeconds % 60;
+            
+            // بناء النص التفصيلي
+            let timeDetails = [];
+            if (years > 0) timeDetails.push(`${years} سنة${years > 1 ? '' : ''}`);
+            if (months > 0) timeDetails.push(`${months} شهر`);
+            if (days > 0) timeDetails.push(`${days} يوم`);
+            if (hours > 0) timeDetails.push(`${hours} ساعة`);
+            if (minutes > 0 && years === 0 && months === 0) timeDetails.push(`${minutes} دقيقة`);
+            if (seconds > 0 && years === 0 && months === 0 && days === 0 && hours === 0) timeDetails.push(`${seconds} ثانية`);
+            
+            const timeText = timeDetails.length > 0 ? timeDetails.join(' و ') : 'أقل من دقيقة';
+            
+            html += `<p style="background: #e8f5e9; padding: 15px; border-radius: 8px; margin: 10px 0;">
+              <strong>⏰ الوقت المتبقي:</strong><br>
+              <span style="color: #2e7d32; font-size: 18px; font-weight: bold;">${timeText}</span><br>
+              <span style="color: #666; font-size: 12px; margin-top: 5px; display: inline-block;">
+                (إجمالي ${totalDays} يوم و ${hours} ساعة و ${minutes} دقيقة)
+              </span>
+            </p>`;
+          } else {
+            html += '<p style="background: #ffebee; padding: 15px; border-radius: 8px; color: #c62828;"><strong>⚠️ الترخيص منتهي</strong></p>';
+          }
+          
+          const formattedDate = expiryDate.toLocaleString('ar-EG', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          });
+          html += `<p><strong>تاريخ الانتهاء:</strong> ${formattedDate}</p>`;
+        }
+      }
+      
+
+      if (data.deviceId) {
+        html += `<p><strong>معرف الجهاز:</strong> <code style="font-size: 11px;">${data.deviceId.substr(0, 16)}...</code></p>`;
+      }
+      
+      licenseInfo.innerHTML = html;
+      licenseInfo.style.display = 'block';
+    }
+
+    function generateDeviceId() {
+      // التحقق من وجود Device ID محفوظ مسبقاً
+      const savedDeviceId = localStorage.getItem('deviceUniqueId');
+      if (savedDeviceId) {
+        return savedDeviceId;
+      }
+      
+      // توليد Device ID فريد بناءً على بصمة الجهاز (Hardware Fingerprint)
+      const nav = window.navigator;
+      const screen = window.screen;
+      
+      // 1. Canvas Fingerprinting - بصمة GPU/Hardware
+      const canvasFingerprint = getCanvasFingerprint();
+      
+      // 2. WebGL Fingerprinting - معلومات كرت الشاشة
+      const webglFingerprint = getWebGLFingerprint();
+      
+      // 3. معلومات الجهاز الأساسية
+      const components = [
+        nav.userAgent,
+        nav.language,
+        nav.languages ? nav.languages.join(',') : '',
+        screen.height,
+        screen.width,
+        screen.availHeight,
+        screen.availWidth,
+        screen.colorDepth,
+        screen.pixelDepth,
+        new Date().getTimezoneOffset(),
+        nav.hardwareConcurrency || 0,
+        nav.deviceMemory || 0,
+        nav.maxTouchPoints || 0,
+        nav.platform || '',
+        canvasFingerprint,
+        webglFingerprint
+      ].join('||');
+      
+      // إنشاء hash قوي من البيانات
+      let hash = 0;
+      for (let i = 0; i < components.length; i++) {
+        const char = components.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash;
+      }
+      
+      // تحويل إلى string فريد
+      const hashStr = Math.abs(hash).toString(36).toUpperCase();
+      // إضافة checksum ثانوي
+      const checksum = (Math.abs(hash) % 99999).toString().padStart(5, '0');
+      const deviceId = 'HW-' + hashStr + '-' + checksum;
+      
+      // حفظ Device ID بشكل دائم
+      localStorage.setItem('deviceUniqueId', deviceId);
+      
+      return deviceId;
+    }
+    
+    // دالة للحصول على Canvas Fingerprint (بصمة GPU)
+    function getCanvasFingerprint() {
+      try {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // رسم نص ومربعات ملونة - كل GPU يرسمها بطريقة مختلفة قليلاً
+        ctx.textBaseline = 'top';
+        ctx.font = '14px Arial';
+        ctx.textBaseline = 'alphabetic';
+        ctx.fillStyle = '#f60';
+        ctx.fillRect(125, 1, 62, 20);
+        ctx.fillStyle = '#069';
+        ctx.fillText('Device Fingerprint 🔒', 2, 15);
+        ctx.fillStyle = 'rgba(102, 204, 0, 0.7)';
+        ctx.fillText('Hardware ID', 4, 17);
+        
+        // الحصول على البيانات كـ hash
+        const dataURL = canvas.toDataURL();
+        let hash = 0;
+        for (let i = 0; i < dataURL.length; i++) {
+          hash = ((hash << 5) - hash) + dataURL.charCodeAt(i);
+          hash = hash & hash;
+        }
+        return Math.abs(hash).toString(36);
+      } catch (e) {
+        return 'canvas-error';
+      }
+    }
+    
+    // دالة للحصول على WebGL Fingerprint (معلومات كرت الشاشة)
+    function getWebGLFingerprint() {
+      try {
+        const canvas = document.createElement('canvas');
+        const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+        
+        if (!gl) return 'no-webgl';
+        
+        const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+        if (debugInfo) {
+          const vendor = gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL);
+          const renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
+          return vendor + '~' + renderer;
+        }
+        
+        return gl.getParameter(gl.VERSION) + '~' + gl.getParameter(gl.RENDERER);
+      } catch (e) {
+        return 'webgl-error';
+      }
+    }
+
+    // الضغط على Enter لتفعيل
+    document.getElementById('licenseKey').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        activateApp();
+      }
+    });
+  </script>
+  <script src="logger.js"></script>
+</body>
+</html>

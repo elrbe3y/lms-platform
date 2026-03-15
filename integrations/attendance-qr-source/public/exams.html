@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>إدخال درجات الامتحانات</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body id="body-main">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: https:; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; font-src 'self' https:; connect-src 'self' http://localhost:* https:; object-src 'none'; base-uri 'self'; form-action 'self'; media-src 'self' data:">
+  <!-- Loading Indicator -->
+  <div id="loadingIndicator" class="loading-overlay" style="display:none;">
+    <div class="spinner"></div>
+    <p>جاري التحميل...</p>
+    <p style="font-size: 1em; margin-top: 10px; font-weight: 600;">سبحان الله وبحمده سبحان الله العظيم</p>
+  </div>
+  
+  <header class="header">
+    <div style="display: flex; justify-content: space-between; align-items: center; padding: 0 20px;">
+      <div>
+        <h1 class="header-title">أ/محمد الربيعي</h1>
+        <p class="header-subtitle">إدخال درجات الامتحانات</p>
+      </div>
+      <div style="display: flex; gap: 10px;">
+        <button id="exitBtn" class="icon-btn" title="العودة للصفحة الرئيسية (ESC)" onclick="window.history.back()">
+          <i class="fas fa-arrow-right"></i>
+        </button>
+        <button id="darkModeToggle" class="icon-btn" title="تبديل الوضع الليلي" onclick="toggleDarkMode()">
+          <i class="fas fa-moon"></i>
+        </button>
+        <a href="settings.html" class="icon-btn" title="الإعدادات" style="text-decoration:none;color:inherit;">
+          <i class="fas fa-cog"></i>
+        </a>
+      </div>
+    </div>
+  </header>
+  
+  <h2 id="examsTitle">إدخال درجات الامتحانات</h2>
+  
+  <!-- فورم إضافة درجة امتحان -->
+  <div class="form-container" style="background:white; padding:20px; border-radius:10px; margin:20px auto; max-width:800px; box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+    <h3 style="color:#667eea; margin-top:0;"><i class="fas fa-edit"></i> إضافة درجة امتحان جديدة</h3>
+    
+    <form id="examForm">
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(250px, 1fr)); gap:15px;">
+        <div>
+          <label><i class="fas fa-user"></i> اختر الطالب:
+            <select id="studentSelect" required style="width:100%; padding:10px; border:2px solid #ddd; border-radius:5px;">
+              <option value="">-- اختر طالب --</option>
+            </select>
+          </label>
+        </div>
+        
+        <div>
+          <label><i class="fas fa-clipboard-list"></i> نوع الامتحان:
+            <select id="examType" required style="width:100%; padding:10px; border:2px solid #ddd; border-radius:5px;">
+              <option value="شهري">امتحان شهري</option>
+              <option value="نصف الترم">نصف الترم</option>
+              <option value="نهاية الترم">نهاية الترم</option>
+              <option value="نهائي">امتحان نهائي</option>
+            </select>
+          </label>
+        </div>
+        
+        <div>
+          <label><i class="fas fa-book"></i> المادة:
+            <select id="subject" style="width:100%; padding:10px; border:2px solid #ddd; border-radius:5px;">
+              <option value="فيزياء">فيزياء</option>
+              <option value="كيمياء">كيمياء</option>
+              <option value="رياضيات">رياضيات</option>
+              <option value="أحياء">أحياء</option>
+              <option value="عام">عام</option>
+            </select>
+          </label>
+        </div>
+        
+        <div>
+          <label><i class="fas fa-star"></i> الدرجة:
+            <input type="number" id="score" min="0" max="100" step="0.5" required placeholder="أدخل الدرجة" style="width:100%; padding:10px; border:2px solid #ddd; border-radius:5px;">
+          </label>
+        </div>
+        
+        <div>
+          <label><i class="fas fa-trophy"></i> من (النهاية العظمى):
+            <input type="number" id="maxScore" min="1" value="100" required placeholder="النهاية العظمى" style="width:100%; padding:10px; border:2px solid #ddd; border-radius:5px;">
+          </label>
+        </div>
+        
+        <div>
+          <label><i class="fas fa-calendar"></i> التاريخ:
+            <input type="date" id="examDate" required style="width:100%; padding:10px; border:2px solid #ddd; border-radius:5px;">
+          </label>
+        </div>
+      </div>
+      
+      <div style="margin-top:15px;">
+        <label><i class="fas fa-comment"></i> ملاحظات (اختياري):
+          <textarea id="notes" rows="3" placeholder="أضف ملاحظات..." style="width:100%; padding:10px; border:2px solid #ddd; border-radius:5px;"></textarea>
+        </label>
+      </div>
+      
+      <button type="submit" class="main-btn" style="width:100%; margin-top:15px; font-size:18px;"><i class="fas fa-save"></i> حفظ الدرجة</button>
+    </form>
+  </div>
+
+  <!-- فلاتر -->
+  <div class="filters-container" style="background:white; padding:20px; border-radius:10px; margin:20px auto; max-width:1200px; box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+    <h3 style="color:#667eea; margin-top:0;">فلاتر البحث</h3>
+    
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:15px;">
+      <div>
+        <label><i class="fas fa-user"></i> بحث بالاسم:
+          <input type="text" id="searchName" placeholder="أدخل اسم الطالب" style="width:100%; padding:8px; border:2px solid #ddd; border-radius:5px;">
+        </label>
+      </div>
+      
+      <div>
+        <label><i class="fas fa-clipboard-list"></i> نوع الامتحان:
+          <select id="filterExamType" style="width:100%; padding:8px; border:2px solid #ddd; border-radius:5px;">
+            <option value="all">الكل</option>
+            <option value="شهري">امتحان شهري</option>
+            <option value="نصف الترم">نصف الترم</option>
+            <option value="نهاية الترم">نهاية الترم</option>
+            <option value="نهائي">امتحان نهائي</option>
+          </select>
+        </label>
+      </div>
+      
+      <div>
+        <label><i class="fas fa-book"></i> المادة:
+          <select id="filterSubject" style="width:100%; padding:8px; border:2px solid #ddd; border-radius:5px;">
+            <option value="all">الكل</option>
+            <option value="فيزياء">فيزياء</option>
+            <option value="كيمياء">كيمياء</option>
+            <option value="رياضيات">رياضيات</option>
+            <option value="أحياء">أحياء</option>
+            <option value="عام">عام</option>
+          </select>
+        </label>
+      </div>
+      
+      <div id="gradeSelectContainer">
+        <label><i class="fas fa-book"></i> الصف:
+          <select id="gradeSelect" style="width:100%; padding:8px; border:2px solid #ddd; border-radius:5px;">
+            <option value="3">أولى ثانوي</option>
+            <option value="2">ثانية ثانوي</option>
+            <option value="1">ثالثة ثانوي</option>
+          </select>
+        </label>
+      </div>
+      
+      <div style="display:flex; align-items:flex-end;">
+        <button id="clearFiltersBtn" type="button" class="main-btn" style="background:#6c757d; width:100%;"><i class="fas fa-eraser"></i> مسح الفلاتر</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- جدول الدرجات -->
+  <table id="examsTable" style="margin-top: 20px;">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>اسم الطالب</th>
+        <th>نوع الامتحان</th>
+        <th>المادة</th>
+        <th>الدرجة</th>
+        <th>النسبة المئوية</th>
+        <th>التقدير</th>
+        <th>التاريخ</th>
+        <th>ملاحظات</th>
+        <th>تعديل</th>
+        <th>حذف</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <!-- Modal للتعديل -->
+  <div id="editModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000;">
+    <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); background:white; padding:20px; border-radius:10px; text-align:center; box-shadow:0 0 10px rgba(0,0,0,0.5); min-width:300px;">
+      <h2>تعديل الدرجة</h2>
+      <p id="editExamInfo"></p>
+      <label>الدرجة:
+        <input type="number" id="editScore" min="0" step="0.5" placeholder="أدخل الدرجة" style="padding:10px; width:200px; margin:10px; border:2px solid #28a745; border-radius:5px;">
+      </label><br>
+      <label>ملاحظات:
+        <textarea id="editNotes" rows="3" placeholder="ملاحظات..." style="padding:10px; width:200px; margin:10px; border:2px solid #ffc107; border-radius:5px;"></textarea>
+      </label><br><br>
+      <button id="editSaveBtn" class="main-btn" style="background:#28a745;">حفظ التعديل</button>
+      <button id="editCancelBtn" class="main-btn" style="background:red;">إلغاء</button>
+    </div>
+  </div>
+
+  <a href="index.html" class="main-btn back-btn"><i class="fas fa-home"></i> رجوع للرئيسية</a>
+  <script src="data.js"></script>
+  <script src="exams.js"></script>
+  <script src="license-checker.js"></script>
+  <script>
+    function toggleDarkMode() {
+      const body = document.getElementById('body-main');
+      const isDark = body.classList.toggle('dark-mode');
+      localStorage.setItem('darkMode', isDark);
+      updateDarkModeButton();
+    }
+    
+    function updateDarkModeButton() {
+      const btn = document.getElementById('darkModeToggle');
+      if (document.getElementById('body-main').classList.contains('dark-mode')) {
+        btn.innerHTML = '<i class="fas fa-sun"></i>';
+      } else {
+        btn.innerHTML = '<i class="fas fa-moon"></i>';
+      }
+    }
+    
+    window.addEventListener('DOMContentLoaded', () => {
+      if (localStorage.getItem('darkMode') === 'true') {
+        document.getElementById('body-main').classList.add('dark-mode');
+      }
+      updateDarkModeButton();
+    });
+    
+    // ESC key handler
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape') {
+        window.history.back();
+      }
+    });
+  </script>
+  <script src="port-config.js"></script>
+</html>

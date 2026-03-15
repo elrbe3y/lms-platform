@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>مولد أكواد التفعيل - مرتبط بالجهاز</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Cairo', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+
+    h1 {
+      color: #2c3e50;
+      text-align: center;
+      margin-bottom: 10px;
+      font-size: 32px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #7f8c8d;
+      margin-bottom: 40px;
+      font-size: 14px;
+    }
+
+    .info-box {
+      background: #e8f5e9;
+      border-right: 4px solid #4caf50;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      color: #2e7d32;
+      font-size: 14px;
+    }
+
+    .warning-box {
+      background: #fff3e0;
+      border-right: 4px solid #ff9800;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 20px;
+      color: #e65100;
+      font-size: 14px;
+    }
+
+    .input-group {
+      margin-bottom: 25px;
+    }
+
+    label {
+      display: block;
+      color: #2c3e50;
+      margin-bottom: 10px;
+      font-weight: 600;
+      font-size: 16px;
+    }
+
+    input,
+    select {
+      width: 100%;
+      padding: 15px;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      font-size: 16px;
+      transition: all 0.3s;
+      font-family: 'Courier New', monospace;
+    }
+
+    input:focus,
+    select:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    button {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    .small-btn {
+      width: auto;
+      padding: 10px 20px;
+      font-size: 14px;
+      background: #95a5a6;
+    }
+
+    .small-btn:hover {
+      background: #7f8c8d;
+    }
+
+    .key-section {
+      margin-bottom: 30px;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 12px;
+      border-right: 4px solid #667eea;
+    }
+
+    .key-section h3 {
+      color: #667eea;
+      margin-bottom: 10px;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .key-info {
+      font-size: 13px;
+      color: #7f8c8d;
+      margin-bottom: 15px;
+    }
+
+    .key-box {
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      word-break: break-all;
+      border: 2px solid #ecf0f1;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .key-box:hover {
+      border-color: #667eea;
+      box-shadow: 0 2px 10px rgba(102, 126, 234, 0.2);
+    }
+
+    .copy-btn {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: #667eea;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: all 0.3s;
+      font-family: 'Cairo', sans-serif;
+    }
+
+    .copy-btn:hover {
+      background: #5568d3;
+    }
+
+    .copy-btn.copied {
+      background: #27ae60;
+    }
+
+    .generate-btn {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-bottom: 30px;
+      font-family: 'Cairo', sans-serif;
+    }
+
+    .generate-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .note {
+      background: #fff3cd;
+      border: 1px solid #ffc107;
+      border-radius: 8px;
+      padding: 15px;
+      margin-top: 20px;
+      font-size: 13px;
+      color: #856404;
+    }
+
+    .note strong {
+      color: #f39c12;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 20px;
+      border-radius: 12px;
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 36px;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .stat-label {
+      font-size: 14px;
+      opacity: 0.9;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔑 مولد مفاتيح التفعيل</h1>
+    <p class="subtitle">يمكنك توليد مفاتيح تفعيل للتطبيق من هنا</p>
+
+    <button class="generate-btn" onclick="generateAllKeys()">
+      <i class="fas fa-sync-alt"></i> توليد مفاتيح جديدة
+    </button>
+
+    <div class="stats">
+      <div class="stat-card">
+        <div class="stat-value" id="totalGenerated">0</div>
+        <div class="stat-label">إجمالي المفاتيح المولدة</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="totalCopied">0</div>
+        <div class="stat-label">مرات النسخ</div>
+      </div>
+    </div>
+
+    <div class="key-section">
+      <h3><i class="fas fa-clock"></i> Trial 30 Days</h3>
+      <p class="key-info">نسخة تجريبية لمدة 30 يوم | جهاز واحد</p>
+      <div class="key-box" onclick="copyKey('trial30', this)">
+        <button class="copy-btn"><i class="fas fa-copy"></i> نسخ</button>
+        <span id="key-trial30">اضغط "توليد مفاتيح جديدة" أولاً</span>
+      </div>
+    </div>
+
+    <div class="key-section">
+      <h3><i class="fas fa-hourglass-half"></i> Trial 90 Days</h3>
+      <p class="key-info">نسخة تجريبية لمدة 90 يوم | جهاز واحد</p>
+      <div class="key-box" onclick="copyKey('trial90', this)">
+        <button class="copy-btn"><i class="fas fa-copy"></i> نسخ</button>
+        <span id="key-trial90">اضغط "توليد مفاتيح جديدة" أولاً</span>
+      </div>
+    </div>
+
+    <div class="key-section">
+      <h3><i class="fas fa-calendar-alt"></i> Yearly License</h3>
+      <p class="key-info">ترخيص سنوي | 3 أجهزة</p>
+      <div class="key-box" onclick="copyKey('yearly', this)">
+        <button class="copy-btn"><i class="fas fa-copy"></i> نسخ</button>
+        <span id="key-yearly">اضغط "توليد مفاتيح جديدة" أولاً</span>
+      </div>
+    </div>
+
+    <div class="key-section">
+      <h3><i class="fas fa-infinity"></i> Lifetime License ⭐</h3>
+      <p class="key-info">ترخيص مدى الحياة | 5 أجهزة</p>
+      <div class="key-box" onclick="copyKey('lifetime', this)">
+        <button class="copy-btn"><i class="fas fa-copy"></i> نسخ</button>
+        <span id="key-lifetime">اضغط "توليد مفاتيح جديدة" أولاً</span>
+      </div>
+    </div>
+
+    <div class="note">
+      <strong><i class="fas fa-exclamation-triangle"></i> ملاحظة:</strong>
+      المفاتيح المولدة هنا محلية فقط. للحصول على مفاتيح إنتاج حقيقية، استخدم 
+      <code>generator.js</code> مع Node.js
+    </div>
+  </div>
+
+  <script>
+    let totalGenerated = 0;
+    let totalCopied = 0;
+
+    // المفتاح الافتراضي (Lifetime)
+    const DEFAULT_LIFETIME_KEY = 'ODY2M2JlYTI5NjI0MWFkM2U4MTZkYzU2NGIyMTE1ZjU6MTQ2NDQ2YTJiNDk3ZWI3YzM5ZDkyNTdlNmIzMzgyNWVlMTUzMzVkZjExY2JkYzRmOGVhOWMxOTM2N2U3ZDg1MDU4Y2VmOWYzZjM2YjUxOGQwMGU5MWZlNzIxOTljNmI1MTdiZTA4ZmRlMjc2ODBmOGUxMGMwNmYyMTgwMmJmNDg3ZTZmZDI1MWMzNzk1ZTJhNzMxOTY4MmNkNjdmMjAyYw==';
+
+    function generateKey(days, devices, type) {
+      // توليد معرف عشوائي
+      const id = Array.from({length: 16}, () => 
+        Math.floor(Math.random() * 16).toString(16)
+      ).join('');
+      
+      const data = {
+        id: id,
+        createdAt: new Date().toISOString(),
+        expiryDate: days === -1 ? null : new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString(),
+        maxDevices: devices,
+        type: type
+      };
+
+      // تحويل إلى Base64 (محاكاة بسيطة)
+      const jsonData = JSON.stringify(data);
+      const encoded = btoa(unescape(encodeURIComponent(jsonData)));
+      
+      // إضافة توقيع وهمي
+      const signature = Array.from({length: 32}, () => 
+        Math.floor(Math.random() * 16).toString(16)
+      ).join('');
+      
+      return btoa(`${encoded}:${signature}`);
+    }
+
+    function generateAllKeys() {
+      // توليد المفاتيح
+      const keys = {
+        trial30: generateKey(30, 1, 'trial'),
+        trial90: generateKey(90, 1, 'trial'),
+        yearly: generateKey(365, 3, 'yearly'),
+        lifetime: DEFAULT_LIFETIME_KEY // استخدام المفتاح الافتراضي
+      };
+
+      // عرض المفاتيح
+      document.getElementById('key-trial30').textContent = keys.trial30;
+      document.getElementById('key-trial90').textContent = keys.trial90;
+      document.getElementById('key-yearly').textContent = keys.yearly;
+      document.getElementById('key-lifetime').textContent = keys.lifetime;
+
+      // تحديث الإحصائيات
+      totalGenerated += 4;
+      document.getElementById('totalGenerated').textContent = totalGenerated;
+
+      // حفظ في LocalStorage
+      const history = JSON.parse(localStorage.getItem('keyHistory') || '[]');
+      history.push({
+        date: new Date().toISOString(),
+        keys: keys
+      });
+      localStorage.setItem('keyHistory', JSON.stringify(history));
+
+      alert('✅ تم توليد المفاتيح بنجاح!');
+    }
+
+    async function copyKey(keyType, element) {
+      const keyElement = document.getElementById(`key-${keyType}`);
+      const text = keyElement.textContent;
+      
+      if (text === 'اضغط "توليد مفاتيح جديدة" أولاً') {
+        alert('يرجى توليد المفاتيح أولاً');
+        return;
+      }
+
+      try {
+        await navigator.clipboard.writeText(text);
+        
+        // تحديث زر النسخ
+        const btn = element.querySelector('.copy-btn');
+        const originalHTML = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-check"></i> تم النسخ';
+        btn.classList.add('copied');
+        
+        setTimeout(() => {
+          btn.innerHTML = originalHTML;
+          btn.classList.remove('copied');
+        }, 2000);
+
+        // تحديث الإحصائيات
+        totalCopied++;
+        document.getElementById('totalCopied').textContent = totalCopied;
+      } catch (err) {
+        // Fallback للمتصفحات القديمة
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        alert('✅ تم نسخ المفتاح!');
+      }
+    }
+
+    // تحميل الإحصائيات عند بدء الصفحة
+    window.addEventListener('DOMContentLoaded', () => {
+      const history = JSON.parse(localStorage.getItem('keyHistory') || '[]');
+      totalGenerated = history.reduce((sum, h) => sum + Object.keys(h.keys).length, 0);
+      document.getElementById('totalGenerated').textContent = totalGenerated;
+    });
+  </script>
+</body>
+</html>

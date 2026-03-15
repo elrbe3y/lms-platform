@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: https:; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; font-src 'self' https:; connect-src 'self' http://localhost:* https:; object-src 'none'; base-uri 'self'; form-action 'self'; media-src 'self' data:">
+  <title>تسجيل الحضور</title>
+  <link rel="stylesheet" href="style.css?v=5">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+</head>
+<body id="body-main">
+  <!-- Loading Indicator -->
+  <div id="loadingIndicator" class="loading-overlay" style="display:none;">
+    <div class="spinner"></div>
+    <p>جاري التحميل...</p>
+    <p style="font-size: 1em; margin-top: 10px; font-weight: 600;">سبحان الله وبحمده سبحان الله العظيم</p>
+  </div>
+  
+  <header class="header">
+    <div style="display: flex; justify-content: space-between; align-items: center; padding: 0 20px;">
+      <div>
+        <h1 class="header-title">أ/محمد الربيعي</h1>
+        <p class="header-subtitle">تسجيل الحضور</p>
+      </div>
+      <div style="display: flex; gap: 10px;">
+        <button id="exitBtn" class="icon-btn" title="العودة للصفحة الرئيسية (ESC)" onclick="window.history.back()">
+          <i class="fas fa-arrow-right"></i>
+        </button>
+        <button id="darkModeToggle" class="icon-btn" title="تبديل الوضع الليلي" onclick="toggleDarkMode()">
+          <i class="fas fa-moon"></i>
+        </button>
+        <a href="settings.html" class="icon-btn" title="الإعدادات" style="text-decoration:none;color:inherit;">
+          <i class="fas fa-cog"></i>
+        </a>
+      </div>
+    </div>
+  </header>
+  
+  <div style="text-align:center; margin:20px;">
+    <h2 id="pageTitle">تسجيل الحضور</h2>
+    <div id="gradeSelectContainer" style="margin:15px auto; max-width:300px;">
+      <label style="display:block; margin-bottom:8px; font-weight:600;">اختر الصف:</label>
+      <select id="gradeSelect" class="main-input" style="width:100%; padding:10px; font-size:16px;">
+        <option value="3">أولى ثانوي</option>
+        <option value="2">ثانية ثانوي</option>
+        <option value="1">ثالثة ثانوي</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- <div id="reader" style="width:350px; margin:auto;"></div> -->
+  <div id="result" style="text-align:center; margin-top:20px;"></div>
+
+  <div style="text-align:center; margin-top:30px;">
+    <h3>تسجيل الحضور</h3>
+    <div style="display:inline-block; text-align:right; margin:10px;">
+      <label>ID الطالب أو رقم الهاتف:
+        <input type="text" id="manualIdInput" placeholder="أدخل ID">
+      </label><br><br>
+      <button id="manualAttendanceBtn" class="main-btn"><i class="fas fa-check-circle"></i> تسجيل الحضور</button>
+    </div>
+  </div>
+  <audio id="successSound" src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZUQ0PVKzn77BfGg1AluPwumwhBTGG0fPTgjMGHm7A7+OZUQ0PVKzn77BfGg1AluPwumwhBTGG0fPTgjMGHm7A7+OZUg0PVKzn77BfGg1AluPwumwhBTGG0fPTgjMGHm7A7+OZUg0PVKzn77BfGg1AluPwumwhBTGG0fPTgjMGHm7A7+OZUg0PVKzn77BfGg1AluPwumwhBTGG0fPTgjMGHm7A7+OZUg0PVKzn77BfGg1AluPwumwhBTGG0fPTgjMGHm7A7+OZUg0PVKzn77BfGg1AluPwumwhBTGG0fPTgjMGHm7A7+OZUg0PVKzn77BfGg1AluPwumwhBTGG0fPTgjMGHm7A7+OZUg0PVKzn77BfGg1AluPwumwhBTGG0fPTgjMGHm7A7+OZUg0PVKzn77BfGg1AluPwumwhBTGG0fPTgjMGHm7A7+OZUg0PVKzn77BfGg1AluPwumwhBTGG0fPTgjMGHm7A7+OZUg0PVKzn77BfGg1AluPwumwhBTGG0fPTgjMGHm7A7+OZUg0PVKzn77BfGg1AluPwumwhBTGG0fPTgjMGHm7A7+OZUg0PVKzn77BfGg1AluPwumwhBTGG0fPTgjMGHm7A7+OZ"></audio>
+  <audio id="errorSound" src="data:audio/wav;base64,UklGRigBAABXQVZFZm10IBAAAAABAAEAESsAACJWAAABAAgAZGF0YQQBAAC/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/"></audio>
+  <a href="index.html" class="main-btn back-btn" onclick="showLoading()"><i class="fas fa-home"></i> رجوع للرئيسية</a>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-section">
+        <p>&copy; 2026 جميع الحقوق محفوظة لـ <strong>أ/محمد الربيعي</strong></p>
+      </div>
+      <div class="footer-section">
+        <a 
+          href="https://wa.me/201080455031?text=مرحبا، أحتاج مساعدة في نظام إدارة الحضور" 
+          target="_blank"
+          style="display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #25D366 0%, #128C7E 100%); color: white; padding: 10px 20px; border-radius: 25px; text-decoration: none; font-weight: bold; transition: all 0.3s; box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);"
+          onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(37, 211, 102, 0.4)';"
+          onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(37, 211, 102, 0.3)';"
+        >
+          <i class="fab fa-whatsapp" style="font-size: 1.3em;"></i>
+          <span>تواصل مع المطور</span>
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="data.js?v=3"></script>
+  <script src="notifications.js?v=3"></script>
+  <script src="scan.js?v=3"></script>
+  <script>
+    function toggleDarkMode() {
+      const body = document.getElementById('body-main');
+      const isDark = body.classList.toggle('dark-mode');
+      localStorage.setItem('darkMode', isDark);
+      updateDarkModeButton();
+    }
+    
+    function updateDarkModeButton() {
+      const btn = document.getElementById('darkModeToggle');
+      if (document.getElementById('body-main').classList.contains('dark-mode')) {
+        btn.innerHTML = '<i class="fas fa-sun"></i>';
+      } else {
+        btn.innerHTML = '<i class="fas fa-moon"></i>';
+      }
+    }
+    
+    function showLoading() {
+      const loader = document.getElementById('loadingIndicator');
+      if (loader) {
+        loader.style.display = 'flex';
+        setTimeout(() => {
+          loader.style.display = 'none';
+        }, 1500);
+      }
+    }
+    
+    window.addEventListener('DOMContentLoaded', () => {
+      if (localStorage.getItem('darkMode') === 'true') {
+        document.getElementById('body-main').classList.add('dark-mode');
+      }
+      updateDarkModeButton();
+    });
+    
+    // ESC key handler
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape') {
+        window.history.back();
+      }
+    });
+  </script>
+  <script src="logger.js"></script>
+  <script src="license-checker.js"></script>
+  <script src="port-config.js"></script>
+</body>
+</html>

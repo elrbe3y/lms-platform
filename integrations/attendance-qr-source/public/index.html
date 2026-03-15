@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: https:; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; font-src 'self' https:; connect-src 'self' http://localhost:* https:; object-src 'none'; base-uri 'self'; form-action 'self'; media-src 'self' data:">
+  <title>الرئيسية | إدارة حضور الطلاب</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body id="body-main">
+  <!-- Loading Indicator -->
+  <div id="loadingIndicator" class="loading-overlay" style="display:none;">
+    <div class="spinner"></div>
+    <p>جاري التحميل...</p>
+    <p style="font-size: 1em; margin-top: 10px; font-weight: 600;">سبحان الله وبحمده سبحان الله العظيم</p>
+  </div>
+  
+  <header class="header">
+    <div style="display: flex; justify-content: space-between; align-items: center; padding: 0 30px; max-width: 1400px; margin: 0 auto;">
+      <div style="display: flex; align-items: center; gap: 15px;">
+        <div style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 50%; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+          <i class="fas fa-graduation-cap" style="font-size: 2em;"></i>
+        </div>
+        <div>
+          <h1 class="header-title" style="margin: 0; font-size: 2em;">أ/محمد الربيعي</h1>
+          <p class="header-subtitle" style="margin: 5px 0 0 0; font-size: 1.1em;">نظام إدارة حضور الطلاب</p>
+        </div>
+      </div>
+      <div style="display: flex; gap: 10px;">
+        <button id="darkModeToggle" class="icon-btn" title="تبديل الوضع الليلي" onclick="toggleDarkMode()" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 45px; height: 45px; border-radius: 50%; font-size: 1.2em; cursor: pointer; transition: all 0.3s;">
+          <i class="fas fa-moon"></i>
+        </button>
+        <a href="settings.html" class="icon-btn" title="الإعدادات" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 45px; height: 45px; border-radius: 50%; font-size: 1.2em; display: flex; align-items: center; justify-content: center; text-decoration: none; transition: all 0.3s;">
+          <i class="fas fa-cog"></i>
+        </a>
+        <a href="logs.html" id="logsBtn" class="icon-btn" title="السجلات (Logs)" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 45px; height: 45px; border-radius: 50%; font-size: 1.2em; display: none; align-items: center; justify-content: center; text-decoration: none; transition: all 0.3s;">
+          <i class="fas fa-clipboard-list"></i>
+        </a>
+      </div>
+    </div>
+  </header>
+  
+  <div id="mainContent">
+    <div class="grades-container">
+      <div class="grade-card">
+        <h2>أولى ثانوي</h2>
+        <a class="main-btn" href="students.html?grade=3" onclick="showLoading()"><i class="fas fa-users"></i> إدارة الطلاب</a>
+        <a class="main-btn" href="scan.html?grade=3" onclick="showLoading()"><i class="fas fa-qrcode"></i> تسجيل الحضور</a>
+        <a class="main-btn" href="reports.html?grade=3" onclick="showLoading()"><i class="fas fa-chart-bar"></i> التقارير</a>
+      </div>
+      <div class="grade-card">
+        <h2>ثانية ثانوي</h2>
+        <a class="main-btn" href="students.html?grade=2" onclick="showLoading()"><i class="fas fa-users"></i> إدارة الطلاب</a>
+        <a class="main-btn" href="scan.html?grade=2" onclick="showLoading()"><i class="fas fa-qrcode"></i> تسجيل الحضور</a>
+        <a class="main-btn" href="reports.html?grade=2" onclick="showLoading()"><i class="fas fa-chart-bar"></i> التقارير</a>
+      </div>
+      <div class="grade-card">
+        <h2>ثالثة ثانوي</h2>
+        <a class="main-btn" href="students.html?grade=1" onclick="showLoading()"><i class="fas fa-users"></i> إدارة الطلاب</a>
+        <a class="main-btn" href="scan.html?grade=1" onclick="showLoading()"><i class="fas fa-qrcode"></i> تسجيل الحضور</a>
+        <a class="main-btn" href="reports.html?grade=1" onclick="showLoading()"><i class="fas fa-chart-bar"></i> التقارير</a>
+      </div>
+    </div>
+    <p class="welcome">مرحباً بك في نظام إدارة حضور طلاب أ/محمد الربيعي .</p>
+    
+      <div style="text-align: center; margin-top: 30px;">
+        <a href="dashboard.html" class="main-btn" onclick="showLoading()" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: inline-block; text-decoration: none; margin: 10px;">
+          <i class="fas fa-chart-pie"></i> لوحة التحكم
+        </a>
+        <a href="absence-tracker.html" class="main-btn" onclick="showLoading()" style="background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); display: inline-block; text-decoration: none; margin: 10px;">
+          <i class="fas fa-user-clock"></i> متابعة الغياب
+        </a>
+        <a href="whatsapp.html" class="main-btn" onclick="showLoading()" style="background: linear-gradient(135deg, #25D366 0%, #128C7E 100%); display: inline-block; text-decoration: none; margin: 10px;">
+          <i class="fab fa-whatsapp"></i> إدارة واتساب
+        </a>
+        <a href="broadcast.html" class="main-btn" onclick="showLoading()" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); display: inline-block; text-decoration: none; margin: 10px;">
+          <i class="fas fa-bullhorn"></i> الرسائل الجماعية
+        </a>
+      </div>
+  </div>
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-section">
+        <p>&copy; 2026 جميع الحقوق محفوظة لـ <strong>أ/محمد الربيعي</strong></p>
+      </div>
+      <div class="footer-section">
+        <p style="margin: 0;">نظام إدارة الحضور المتكامل - الإصدار 1.0</p>
+      </div>
+      <div class="footer-section">
+        <a 
+          href="https://wa.me/201080455031?text=مرحبا، أحتاج مساعدة في نظام إدارة الحضور" 
+          target="_blank"
+          style="display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #25D366 0%, #128C7E 100%); color: white; padding: 10px 20px; border-radius: 25px; text-decoration: none; font-weight: bold; transition: all 0.3s; box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);"
+          onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(37, 211, 102, 0.4)';"
+          onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(37, 211, 102, 0.3)';"
+        >
+          <i class="fab fa-whatsapp" style="font-size: 1.3em;"></i>
+          <span>تواصل مع المطور</span>
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="data.js"></script>
+  <script>
+    // Data manager is ready
+    function toggleDarkMode() {
+      const body = document.getElementById('body-main');
+      const isDark = body.classList.toggle('dark-mode');
+      localStorage.setItem('darkMode', isDark);
+      updateDarkModeButton();
+    }
+    
+    function updateDarkModeButton() {
+      const btn = document.getElementById('darkModeToggle');
+      if (document.getElementById('body-main').classList.contains('dark-mode')) {
+        btn.innerHTML = '<i class="fas fa-sun"></i>';
+      } else {
+        btn.innerHTML = '<i class="fas fa-moon"></i>';
+      }
+    }
+    
+    function showLoading() {
+      const loader = document.getElementById('loadingIndicator');
+      if (loader) {
+        loader.style.display = 'flex';
+        setTimeout(() => {
+          loader.style.display = 'none';
+        }, 1500);
+      }
+    }
+    
+    window.addEventListener('DOMContentLoaded', () => {
+      if (localStorage.getItem('darkMode') === 'true') {
+        document.getElementById('body-main').classList.add('dark-mode');
+      }
+      updateDarkModeButton();
+      
+      // وضع المطور معطل مؤقتاً
+      /*
+      // إظهار زر اللوجات في وضع المطور
+      if (localStorage.getItem('developerMode') === 'true') {
+        const logsBtn = document.getElementById('logsBtn');
+        if (logsBtn) logsBtn.style.display = 'flex';
+      }
+      */
+    });
+    
+    // وضع المطور معطل مؤقتاً
+    /*
+    // اختصار Ctrl+Shift+L لإظهار زر اللوجات
+    document.addEventListener('keydown', (e) => {
+      if (e.ctrlKey && e.shiftKey && e.key === 'L') {
+        e.preventDefault();
+        const logsBtn = document.getElementById('logsBtn');
+        if (logsBtn) {
+          logsBtn.style.display = 'flex';
+          localStorage.setItem('developerMode', 'true');
+          if (window.logger) {
+            logger.info('DEVELOPER_MODE', 'تم تفعيل وضع المطور وإظهار زر اللوجات');
+          }
+        }
+      }
+    });
+    */
+  </script>
+  <script src="logger.js"></script>
+  <script src="license-checker.js"></script>
+  <script src="port-config.js"></script>

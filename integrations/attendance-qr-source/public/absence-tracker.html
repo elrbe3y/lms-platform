@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>متابعة الغياب الدوري</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    .page-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .header-section {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px;
+      border-radius: 10px;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    .header-section h1 {
+      margin: 0;
+      font-size: 2em;
+      margin-bottom: 10px;
+    }
+
+    .control-section {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      display: flex;
+      gap: 15px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .control-section select {
+      padding: 10px 15px;
+      border: 2px solid #ddd;
+      border-radius: 5px;
+      font-size: 14px;
+      min-width: 150px;
+    }
+
+    .btn-check {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 12px 30px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: bold;
+      transition: transform 0.2s;
+    }
+
+    .btn-check:hover {
+      transform: scale(1.05);
+    }
+
+    .results-section {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .results-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #667eea;
+      padding-bottom: 10px;
+    }
+
+    .results-header h2 {
+      margin: 0;
+      color: #333;
+    }
+
+    .status-badge {
+      background: #e74c3c;
+      color: white;
+      padding: 5px 15px;
+      border-radius: 20px;
+      font-weight: bold;
+    }
+
+    .student-list {
+      max-height: 500px;
+      overflow-y: auto;
+    }
+
+    .student-item {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      padding: 12px;
+      border-bottom: 1px solid #eee;
+      background: #f9f9f9;
+      margin-bottom: 8px;
+      border-radius: 5px;
+      transition: background 0.3s;
+    }
+
+    .student-item:hover {
+      background: #f0f0f0;
+    }
+
+    .student-item input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+    }
+
+    .student-info {
+      flex: 1;
+    }
+
+    .student-name {
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 5px;
+    }
+
+    .student-phone {
+      font-size: 12px;
+      color: #666;
+    }
+
+    .last-attendance {
+      font-size: 12px;
+      color: #999;
+      margin-top: 3px;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .btn-send {
+      background: #27ae60;
+      color: white;
+      border: none;
+      padding: 12px 30px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: bold;
+      flex: 1;
+      transition: background 0.3s;
+    }
+
+    .btn-send:hover {
+      background: #229954;
+    }
+
+    .btn-cancel {
+      background: #95a5a6;
+      color: white;
+      border: none;
+      padding: 12px 30px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: bold;
+      flex: 1;
+      transition: background 0.3s;
+    }
+
+    .btn-cancel:hover {
+      background: #7f8c8d;
+    }
+
+    .select-all-section {
+      padding: 10px;
+      background: #ecf0f1;
+      border-radius: 5px;
+      margin-bottom: 15px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .select-all-section input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+    }
+
+    .select-all-section label {
+      cursor: pointer;
+      font-weight: bold;
+      margin: 0;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px;
+      color: #999;
+    }
+
+    .empty-state i {
+      font-size: 3em;
+      margin-bottom: 10px;
+      opacity: 0.5;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 20px;
+      color: #667eea;
+    }
+
+    .back-btn {
+      display: inline-block;
+      margin-bottom: 20px;
+      padding: 10px 20px;
+      background: #95a5a6;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+      transition: background 0.3s;
+    }
+
+    .back-btn:hover {
+      background: #7f8c8d;
+    }
+
+    .success-message {
+      background: #d4edda;
+      color: #155724;
+      padding: 15px;
+      border-radius: 5px;
+      margin-bottom: 20px;
+      border-left: 4px solid #28a745;
+    }
+
+    .error-message {
+      background: #f8d7da;
+      color: #721c24;
+      padding: 15px;
+      border-radius: 5px;
+      margin-bottom: 20px;
+      border-left: 4px solid #f5576c;
+    }
+  </style>
+</head>
+<body>
+  <header class="header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; margin-bottom: 30px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; padding: 0 20px; max-width: 1200px; margin: 0 auto;">
+      <div>
+        <h1 style="margin: 0; font-size: 1.8em;"><i class="fas fa-user-check"></i> متابعة الغياب الدوري</h1>
+        <p style="margin: 5px 0 0 0; opacity: 0.9;">فحص الطلاب الغائبين في آخر 7 أيام</p>
+      </div>
+      <div style="display: flex; gap: 10px;">
+        <button id="exitBtn" class="icon-btn" title="العودة (ESC)" onclick="window.history.back()" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 45px; height: 45px; border-radius: 50%; font-size: 1.2em; cursor: pointer;">
+          <i class="fas fa-arrow-right"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+  <div class="page-container">
+
+    <div class="header-section">
+      <h1><i class="fas fa-user-check"></i> متابعة الغياب الدوري</h1>
+      <p>فحص الطلاب الغائبين في آخر 7 أيام وإرسال رسائل إنذار لأولياء الأمور</p>
+    </div>
+
+    <div id="messageContainer"></div>
+
+    <div class="control-section">
+      <label for="gradeSelect" style="font-weight: bold;">اختر الصف:</label>
+      <select id="gradeSelect">
+        <option value="3">الصف الأول</option>
+        <option value="2">الصف الثاني</option>
+        <option value="1">الصف الثالث</option>
+      </select>
+      <button class="btn-check" onclick="checkAbsentStudents()">
+        <i class="fas fa-search"></i> فحص الغائبين (آخر 7 أيام)
+      </button>
+    </div>
+
+    <div class="results-section">
+      <div id="resultsContainer">
+        <div class="empty-state">
+          <i class="fas fa-inbox"></i>
+          <p>اضغط على الزرار "فحص الغائبين" لعرض قائمة الطلاب الغائبين</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="notifications.js"></script>
+  <script src="port-config.js"></script>
+
+  <script>
+    let absentStudents = [];
+
+    async function checkAbsentStudents() {
+      const grade = document.getElementById('gradeSelect').value;
+      const container = document.getElementById('resultsContainer');
+
+      container.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> جاري البحث...</div>';
+
+      try {
+        const response = await fetch(`http://localhost:3000/api/absent-students?grade=${grade}`);
+        
+        // محاولة قراءة الـ JSON بغض النظر عن الـ status
+        let absentStudents = [];
+        try {
+          absentStudents = await response.json();
+        } catch (jsonErr) {
+          console.error('Failed to parse JSON:', jsonErr);
+          absentStudents = [];
+        }
+        
+        // التأكد من أن النتيجة هي مصفوفة
+        if (!Array.isArray(absentStudents)) {
+          absentStudents = [];
+        }
+
+        if (absentStudents.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <i class="fas fa-check-circle"></i>
+              <h3>رائع! لا توجد غيابات</h3>
+              <p>جميع الطلاب حضروا في آخر 7 أيام</p>
+            </div>
+          `;
+          return;
+        }
+
+        renderAbsentStudentsList();
+      } catch (error) {
+        console.error('Error fetching absent students:', error);
+        container.innerHTML = `
+          <div class="error-message">
+            <i class="fas fa-exclamation-circle"></i> حدث خطأ في البحث. الرجاء المحاولة لاحقاً.
+          </div>
+        `;
+      }
+    }
+
+    function renderAbsentStudentsList() {
+      const container = document.getElementById('resultsContainer');
+      const gradeSelect = document.getElementById('gradeSelect');
+
+      let html = `
+        <div class="results-header">
+          <h2><i class="fas fa-list"></i> قائمة الطلاب الغائبين</h2>
+          <span class="status-badge">${absentStudents.length} طالب</span>
+        </div>
+
+        <div class="select-all-section">
+          <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll(this)">
+          <label for="selectAllCheckbox">اختر الكل</label>
+        </div>
+
+        <div class="student-list">
+      `;
+
+      absentStudents.forEach((student, index) => {
+        html += `
+          <div class="student-item">
+            <input type="checkbox" class="student-checkbox" data-id="${student.id}" data-phone="${student.parentPhone}" checked>
+            <div class="student-info">
+              <div class="student-name">${student.name}</div>
+              <div class="student-phone">
+                <i class="fas fa-phone"></i> ${student.phone || 'غير مسجل'}
+              </div>
+              <div class="last-attendance">
+                <i class="fas fa-calendar-times"></i> آخر حضور: ${student.lastAttendanceDate || 'لم يحضر أبداً'}
+              </div>
+            </div>
+          </div>
+        `;
+      });
+
+      html += `
+        </div>
+
+        <div class="action-buttons">
+          <button class="btn-send" onclick="sendAbsenceNotifications()">
+            <i class="fas fa-paper-plane"></i> إرسال رسائل الغياب
+          </button>
+          <button class="btn-cancel" onclick="clearResults()">
+            <i class="fas fa-times"></i> مسح
+          </button>
+        </div>
+      `;
+
+      container.innerHTML = html;
+    }
+
+    function toggleSelectAll(checkbox) {
+      const checkboxes = document.querySelectorAll('.student-checkbox');
+      checkboxes.forEach(cb => {
+        cb.checked = checkbox.checked;
+      });
+    }
+
+    async function sendAbsenceNotifications() {
+      const checkboxes = document.querySelectorAll('.student-checkbox:checked');
+      const selectedStudents = Array.from(checkboxes).map(cb => {
+        const id = cb.dataset.id;
+        const student = absentStudents.find(s => s.id == id);
+        return {
+          ...student,
+          selected: true
+        };
+      });
+
+      if (selectedStudents.length === 0) {
+        alert('من فضلك اختر طلاباً لإرسال الرسائل لهم');
+        return;
+      }
+
+      // محاكاة الإرسال
+      const messageContainer = document.getElementById('messageContainer');
+      let successCount = 0;
+
+      for (const student of selectedStudents) {
+        try {
+          // هنا يمكن إضافة منطق الإرسال الفعلي (WhatsApp, SMS, إلخ)
+          console.log(`إرسال رسالة للطالب ${student.name} على ${student.parentPhone}`);
+          successCount++;
+
+          // محاكاة التأخير
+          await new Promise(resolve => setTimeout(resolve, 500));
+        } catch (error) {
+          console.error(`خطأ في إرسال رسالة للطالب ${student.name}:`, error);
+        }
+      }
+
+      // عرض رسالة النجاح
+      messageContainer.innerHTML = `
+        <div class="success-message">
+          <i class="fas fa-check-circle"></i>
+          <strong>تم بنجاح!</strong> تم إرسال ${successCount} رسالة غياب
+        </div>
+      `;
+
+      // إزالة الرسالة بعد 5 ثواني
+      setTimeout(() => {
+        messageContainer.innerHTML = '';
+      }, 5000);
+
+      // تحديث القائمة
+      setTimeout(() => {
+        clearResults();
+      }, 2000);
+    }
+
+    function clearResults() {
+      document.getElementById('resultsContainer').innerHTML = `
+        <div class="empty-state">
+          <i class="fas fa-inbox"></i>
+          <p>اضغط على الزرار "فحص الغائبين" لعرض قائمة الطلاب الغائبين</p>
+        </div>
+      `;
+      document.getElementById('messageContainer').innerHTML = '';
+    }
+  </script>
+  <script src="license-checker.js"></script>
+  <script>
+    // ESC key handler
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape') {
+        window.history.back();
+      }
+    });
+  </script>
+</body>
+</html>

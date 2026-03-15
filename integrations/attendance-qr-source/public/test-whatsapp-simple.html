@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>اختبار WhatsApp</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body style="padding: 20px; direction: rtl;">
+  <h2>اختبار إرسال رسالة WhatsApp</h2>
+  
+  <div style="background: white; padding: 20px; border-radius: 8px; max-width: 500px;">
+    <p><strong>الحالة:</strong> <span id="status" style="color: #999;">جاري التحقق...</span></p>
+    
+    <div style="margin: 20px 0;">
+      <label>رقم الهاتف:</label>
+      <input type="text" id="phone" value="01112074017" style="width: 100%; padding: 8px; margin-top: 5px;">
+      <small style="color: #666;">مثال: 01012345678</small>
+    </div>
+    
+    <div style="margin: 20px 0;">
+      <label>الرسالة:</label>
+      <textarea id="message" style="width: 100%; padding: 8px; margin-top: 5px; min-height: 100px;">مرحباً! هذه رسالة تجريبية من نظام الحضور 🎓
+
+صلى الله على محمد</textarea>
+    </div>
+    
+    <button onclick="sendWhatsApp()" style="background: #25D366; color: white; border: none; padding: 12px 30px; border-radius: 5px; cursor: pointer; font-size: 16px; width: 100%;">
+      📱 إرسال رسالة WhatsApp
+    </button>
+    
+    <div id="result" style="margin-top: 20px; padding: 10px; border-radius: 5px; display: none;"></div>
+  </div>
+
+  <script>
+    // تحديث الحالة عند فتح الصفحة
+    checkStatus();
+    setInterval(checkStatus, 3000);
+
+    async function checkStatus() {
+      try {
+        const status = await window.electron.getWhatsAppStatus();
+        const statusEl = document.getElementById('status');
+        
+        if (status.isReady) {
+          statusEl.textContent = '✅ WhatsApp جاهز';
+          statusEl.style.color = '#25D366';
+        } else if (status.state === 'qr') {
+          statusEl.textContent = '🔲 انتظار مسح QR Code';
+          statusEl.style.color = '#ff9800';
+        } else {
+          statusEl.textContent = '⏳ جاري التهيئة...';
+          statusEl.style.color = '#999';
+        }
+      } catch (err) {
+        console.error('خطأ في جلب الحالة:', err);
+      }
+    }
+
+    async function sendWhatsApp() {
+      const phone = document.getElementById('phone').value;
+      const message = document.getElementById('message').value;
+      const resultEl = document.getElementById('result');
+
+      if (!phone || !message) {
+        showResult('⚠️ الرجاء ملء جميع الحقول', 'error');
+        return;
+      }
+
+      try {
+        showResult('📤 جاري الإرسال...', 'info');
+        
+        const result = await window.electron.sendWhatsAppMessage(phone, message);
+        
+        if (result.success) {
+          showResult('✅ تم إرسال الرسالة بنجاح!', 'success');
+        } else {
+          showResult('❌ فشل الإرسال: ' + result.message, 'error');
+        }
+      } catch (err) {
+        showResult('❌ خطأ: ' + err.message, 'error');
+      }
+    }
+
+    function showResult(message, type) {
+      const resultEl = document.getElementById('result');
+      resultEl.textContent = message;
+      resultEl.style.display = 'block';
+      
+      if (type === 'success') {
+        resultEl.style.background = '#d4edda';
+        resultEl.style.color = '#155724';
+        resultEl.style.border = '1px solid #c3e6cb';
+      } else if (type === 'error') {
+        resultEl.style.background = '#f8d7da';
+        resultEl.style.color = '#721c24';
+        resultEl.style.border = '1px solid #f5c6cb';
+      } else {
+        resultEl.style.background = '#d1ecf1';
+        resultEl.style.color = '#0c5460';
+        resultEl.style.border = '1px solid #bee5eb';
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,126 @@
+{
+  "name": "student-attendance-center",
+  "version": "1.0.1",
+  "description": "Offline student attendance app for educational center using Electron, Node.js, SQLite.",
+  "main": "main.js",
+  "build": {
+    "appId": "com.attendance-system",
+    "productName": "نظام إدارة الحضور",
+    "directories": {
+      "output": "D:/AttendanceSystem-Build"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "server.js",
+      "config.js",
+      "database.js",
+      "database-secure.js",
+      "db.js",
+      "attendanceController.js",
+      "backupManager.js",
+      "migrate-students.js",
+      "whatsapp-engine.js",
+      "vendor/chromium/**/*",
+      "public/**/*",
+      "models/**/*",
+      "LicenseKeyGenerator/**/*",
+      "data/**/*",
+      "backups/**/*",
+      "uploads/**/*",
+      "node_modules/**/*",
+      "icon.ico",
+      "LICENSE.txt",
+      "package.json"
+    ],
+    "asarUnpack": [
+      "server.js",
+      "db.js",
+      "database.js",
+      "database-secure.js",
+      "attendanceController.js",
+      "whatsapp-engine.js",
+      "backupManager.js",
+      "config.js",
+      "vendor/chromium/**/*",
+      "node_modules/sqlite3/**/*",
+      "node_modules/better-sqlite3/**/*",
+      "node_modules/express/**/*",
+      "node_modules/multer/**/*",
+      "node_modules/qrcode/**/*",
+      "node_modules/exceljs/**/*",
+      "node_modules/archiver/**/*"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "allowElevation": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "نظام إدارة الحضور",
+      "installerIcon": "icon.ico",
+      "uninstallerIcon": "icon.ico",
+      "installerHeaderIcon": "icon.ico",
+      "deleteAppDataOnUninstall": false,
+      "include": "build/installer.nsh",
+      "runAfterFinish": true,
+      "license": "LICENSE.txt",
+      "perMachine": true,
+      "displayLanguageSelector": false,
+      "installerLanguages": ["en"],
+      "artifactName": "${productName}-Setup-${version}.${ext}"
+    },
+    "portable": {
+      "artifactName": "${productName}-Portable-${version}.${ext}"
+    }
+  },
+  "scripts": {
+    "kill-port": "for /f \"tokens=5\" %a in ('netstat -ano ^| findstr :3000') do taskkill /PID %a /F",
+    "start": "node server.js",
+    "electron": "electron .",
+    "cleanup": "taskkill /F /IM electron.exe /T 2>nul & taskkill /F /IM chrome.exe /FI \"WINDOWTITLE eq whatsapp*\" /T 2>nul & echo Cleanup done",
+    "download-chromium": "npx @puppeteer/browsers install chrome --path ./vendor/chromium",
+    "build": "electron-builder --win --x64 --dir",
+    "build-installer": "electron-builder --win --x64 --config.npmRebuild=false",
+    "build-portable": "electron-builder --win portable --config.npmRebuild=false",
+    "build-all": "electron-builder --win --x64 --config.npmRebuild=false"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@fingerprintjs/fingerprintjs": "^5.0.1",
+    "archiver": "^7.0.1",
+    "better-sqlite3": "^12.6.0",
+    "electron-store": "^8.1.0",
+    "exceljs": "^4.4.0",
+    "express": "^4.18.2",
+    "multer": "^1.4.5-lts.1",
+    "node-machine-id": "^1.1.12",
+    "qrcode": "^1.5.4",
+    "qrcode-terminal": "^0.12.0",
+    "sqlite3": "^5.1.7",
+    "whatsapp-web.js": "^1.34.4"
+  },
+  "devDependencies": {
+    "@puppeteer/browsers": "^2.6.0",
+    "electron": "^39.2.7",
+    "electron-builder": "^24.13.3"
+  }
+}

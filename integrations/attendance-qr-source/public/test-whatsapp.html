@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self';">
+  <title>اختبار واتساب</title>
+  <style>
+    * {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      box-sizing: border-box;
+    }
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      margin: 0;
+      padding: 20px;
+      direction: rtl;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    }
+    h1 {
+      text-align: center;
+      color: #667eea;
+      margin: 0 0 30px 0;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+      color: #333;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+    button {
+      width: 100%;
+      padding: 15px;
+      background: #25D366;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+    button:hover {
+      background: #128C7E;
+    }
+    .btn-secondary {
+      background: #667eea;
+    }
+    .btn-secondary:hover {
+      background: #764ba2;
+    }
+    #console {
+      margin-top: 30px;
+      padding: 20px;
+      background: #1e1e1e;
+      color: #00ff00;
+      border-radius: 8px;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      max-height: 400px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .success { color: #00ff00; }
+    .error { color: #ff4444; }
+    .info { color: #4444ff; }
+    .warning { color: #ffaa00; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🧪 اختبار إرسال واتساب</h1>
+    
+    <div class="form-group">
+      <label>📞 رقم الهاتف (مصري):</label>
+      <input type="text" id="phone" placeholder="01012345678" value="01012345678">
+    </div>
+    
+    <div class="form-group">
+      <label>👤 اسم الطالب:</label>
+      <input type="text" id="name" placeholder="أحمد محمد" value="أحمد محمد">
+    </div>
+    
+    <div class="form-group">
+      <label>📊 الدرجة (اختياري):</label>
+      <input type="number" id="score" placeholder="45" value="45">
+    </div>
+    
+    <div class="form-group">
+      <label>💬 رسالة مخصصة (اختياري):</label>
+      <textarea id="message" placeholder="اترك فارغاً لإرسال رسالة الدرجات الافتراضية"></textarea>
+    </div>
+    
+    <button onclick="sendTest()">📤 إرسال رسالة اختبار</button>
+    <button onclick="checkStatus()" class="btn-secondary">📊 فحص حالة الواتساب</button>
+    <button onclick="clearConsole()" class="btn-secondary">🗑️ مسح السجل</button>
+    
+    <div id="console">جاري تحميل...</div>
+  </div>
+
+  <script>
+    const consoleDiv = document.getElementById('console');
+    
+    function log(message, type = 'info') {
+      const timestamp = new Date().toLocaleTimeString('ar-EG');
+      const className = type === 'error' ? 'error' : type === 'success' ? 'success' : type === 'warning' ? 'warning' : 'info';
+      consoleDiv.innerHTML += `<span class="${className}">[${timestamp}] ${message}</span>\n`;
+      consoleDiv.scrollTop = consoleDiv.scrollHeight;
+    }
+    
+    function clearConsole() {
+      consoleDiv.innerHTML = '';
+      log('تم مسح السجل', 'info');
+    }
+    
+    async function checkStatus() {
+      try {
+        log('🔍 جاري فحص حالة الواتساب...', 'info');
+        const response = await window.electronAPI.whatsapp.status();
+        const status = response.status || response;
+        
+        log('📊 الحالة: ' + JSON.stringify(status, null, 2), 'success');
+        
+        if (status.isReady) {
+          log('✅ الواتساب جاهز للإرسال!', 'success');
+        } else {
+          log('⚠️ الواتساب غير جاهز. الحالة: ' + status.state, 'warning');
+        }
+      } catch (error) {
+        log('❌ خطأ في فحص الحالة: ' + error.message, 'error');
+      }
+    }
+    
+    async function sendTest() {
+      try {
+        const phone = document.getElementById('phone').value.trim();
+        const name = document.getElementById('name').value.trim();
+        const score = document.getElementById('score').value.trim();
+        const message = document.getElementById('message').value.trim();
+        
+        if (!phone) {
+          log('❌ يرجى إدخال رقم الهاتف', 'error');
+          return;
+        }
+        
+        if (!name && !message) {
+          log('❌ يرجى إدخال اسم الطالب أو رسالة مخصصة', 'error');
+          return;
+        }
+        
+        log('📤 جاري إرسال الرسالة...', 'info');
+        log('📞 الرقم: ' + phone, 'info');
+        log('👤 الاسم: ' + (name || 'لا يوجد'), 'info');
+        log('📊 الدرجة: ' + (score || 'لا يوجد'), 'info');
+        log('💬 الرسالة: ' + (message || 'رسالة افتراضية'), 'info');
+        
+        const payload = {
+          phone: phone,
+          studentName: name,
+          score: score ? parseFloat(score) : undefined,
+          message: message || undefined
+        };
+        
+        log('📦 البيانات المرسلة: ' + JSON.stringify(payload, null, 2), 'info');
+        
+        const result = await window.electronAPI.whatsapp.sendGrade(payload);
+        
+        log('✅ نتيجة الإرسال: ' + JSON.stringify(result, null, 2), 'success');
+        
+        if (result.success) {
+          log('✅ تم إضافة الرسالة إلى الطابور بنجاح!', 'success');
+          log('⏳ سيتم الإرسال خلال ثوانٍ...', 'info');
+        } else {
+          log('❌ فشل الإرسال: ' + result.error, 'error');
+        }
+        
+      } catch (error) {
+        log('❌ خطأ: ' + error.message, 'error');
+        log('❌ التفاصيل: ' + JSON.stringify(error, null, 2), 'error');
+      }
+    }
+    
+    // تحميل أولي
+    window.addEventListener('DOMContentLoaded', () => {
+      log('✅ صفحة الاختبار جاهزة', 'success');
+      checkStatus();
+    });
+  </script>
+</body>
+</html>

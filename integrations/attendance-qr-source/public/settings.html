@@ -1,0 +1,1674 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: https:; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; font-src 'self' https:; connect-src 'self' http://localhost:* https:; object-src 'none'; base-uri 'self'; form-action 'self'; media-src 'self' data:">
+  <title>الإعدادات | إدارة حضور الطلاب</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    .settings-container {
+      max-width: 600px;
+      margin: 30px auto;
+      padding: 20px;
+      background: var(--card-bg);
+      border-radius: 10px;
+      box-shadow: 0 4px 8px var(--card-shadow);
+    }
+
+    .settings-section {
+      margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .settings-section:last-child {
+      border-bottom: none;
+    }
+
+    .settings-title {
+      font-size: 1.3em;
+      font-weight: bold;
+      margin-bottom: 15px;
+      color: var(--primary-color);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .settings-option {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .settings-option:last-child {
+      border-bottom: none;
+    }
+
+    .settings-label {
+      font-weight: 600;
+      color: var(--text-color);
+    }
+
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 60px;
+      height: 30px;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: 0.4s;
+      border-radius: 30px;
+    }
+
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 22px;
+      width: 22px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: 0.4s;
+      border-radius: 50%;
+    }
+
+    input:checked + .toggle-slider {
+      background-color: #667eea;
+    }
+
+    input:checked + .toggle-slider:before {
+      transform: translateX(30px);
+    }
+
+    .select-box {
+      padding: 8px;
+      border: 1px solid var(--border-color);
+      border-radius: 5px;
+      background: var(--card-bg);
+      color: var(--text-color);
+      cursor: pointer;
+      font-family: 'Cairo', Arial, sans-serif;
+    }
+
+    .text-input {
+      padding: 8px;
+      border: 1px solid var(--border-color);
+      border-radius: 5px;
+      background: var(--card-bg);
+      color: var(--text-color);
+      font-family: 'Cairo', Arial, sans-serif;
+      width: 150px;
+    }
+
+    .color-preview {
+      display: inline-block;
+      width: 30px;
+      height: 30px;
+      border-radius: 5px;
+      border: 2px solid var(--border-color);
+    }
+
+    .preview-section {
+      background: var(--bg-color);
+      padding: 15px;
+      border-radius: 5px;
+      margin-top: 10px;
+      text-align: center;
+    }
+
+    .preview-text {
+      color: var(--text-color);
+      margin: 10px 0;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 30px;
+    }
+
+    .back-btn {
+      background: #95a5a6;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-family: 'Cairo', Arial, sans-serif;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+
+    .back-btn:hover {
+      background: #7f8c8d;
+      transform: scale(1.05);
+    }
+
+    .save-btn {
+      background: #27ae60;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-family: 'Cairo', Arial, sans-serif;
+      font-weight: bold;
+      transition: all 0.3s ease;
+    }
+
+    .save-btn:hover {
+      background: #229954;
+      transform: scale(1.05);
+    }
+
+    .reset-btn {
+      background: #e74c3c;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-family: 'Cairo', Arial, sans-serif;
+      transition: all 0.3s ease;
+    }
+
+    .reset-btn:hover {
+      background: #c0392b;
+      transform: scale(1.05);
+    }
+
+    .factory-reset-btn {
+      background: linear-gradient(135deg, #c0392b 0%, #e74c3c 100%);
+      color: white;
+      padding: 12px 25px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: 'Cairo', Arial, sans-serif;
+      font-weight: bold;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 15px;
+    }
+
+    .factory-reset-btn:hover {
+      background: linear-gradient(135deg, #a93226 0%, #c0392b 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4);
+    }
+
+    .factory-reset-btn:active {
+      transform: translateY(0);
+    }
+
+    .group-item {
+      padding: 15px;
+      margin-bottom: 10px;
+      background: var(--card-bg);
+      border: 2px solid var(--border-color);
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.3s;
+    }
+
+    .group-item:hover {
+      border-color: #667eea;
+      box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+    }
+
+    .center-item {
+      padding: 15px;
+      margin-bottom: 15px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    .center-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid rgba(255,255,255,0.3);
+    }
+
+    .center-title {
+      font-size: 1.2em;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .center-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .center-btn {
+      padding: 8px 15px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-family: 'Cairo', sans-serif;
+      transition: all 0.3s;
+      color: white;
+      font-size: 0.9em;
+    }
+
+    .center-edit-btn {
+      background: rgba(255,255,255,0.3);
+    }
+
+    .center-edit-btn:hover {
+      background: rgba(255,255,255,0.5);
+    }
+
+    .center-delete-btn {
+      background: rgba(255, 0, 0, 0.3);
+    }
+
+    .center-delete-btn:hover {
+      background: rgba(255, 0, 0, 0.6);
+    }
+
+    .groups-container {
+      background: rgba(0,0,0,0.1);
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 10px;
+    }
+
+    .add-group-btn {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      background: rgba(255,255,255,0.2);
+      color: white;
+      border: 2px dashed rgba(255,255,255,0.5);
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: 'Cairo', sans-serif;
+      transition: all 0.3s;
+      margin-bottom: 12px;
+    }
+
+    .add-group-btn:hover {
+      background: rgba(255,255,255,0.3);
+      border-color: rgba(255,255,255,0.8);
+    }
+
+    .group-item-inside {
+      padding: 10px;
+      margin-bottom: 8px;
+      background: white;
+      border-radius: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #333;
+    }
+
+    .group-item-inside:last-child {
+      margin-bottom: 0;
+    }
+
+    .group-info-inside {
+      flex: 1;
+    }
+
+    .group-name-inside {
+      font-weight: bold;
+      margin-bottom: 3px;
+    }
+
+    .group-details-inside {
+      font-size: 0.85em;
+      color: #666;
+    }
+
+    .group-actions-inside {
+      display: flex;
+      gap: 5px;
+    }
+
+    .group-btn-sm {
+      padding: 5px 10px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: 'Cairo', sans-serif;
+      font-size: 0.85em;
+      transition: all 0.3s;
+    }
+
+    .edit-btn-sm {
+      background: #3498db;
+      color: white;
+    }
+
+    .edit-btn-sm:hover {
+      background: #2980b9;
+    }
+
+    .delete-btn-sm {
+      background: #e74c3c;
+      color: white;
+    }
+
+    .delete-btn-sm:hover {
+      background: #c0392b;
+    }
+
+    .group-info {
+      flex: 1;
+    }
+
+    .group-name {
+      font-weight: bold;
+      font-size: 1.1em;
+      color: var(--text-color);
+      margin-bottom: 5px;
+    }
+
+    .group-details {
+      font-size: 0.9em;
+      color: #666;
+    }
+
+    .group-badge {
+      display: inline-block;
+      padding: 3px 10px;
+      background: #667eea;
+      color: white;
+      border-radius: 12px;
+      font-size: 0.85em;
+      margin-left: 8px;
+    }
+
+    .group-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .group-btn {
+      padding: 8px 15px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-family: 'Cairo', sans-serif;
+      transition: all 0.3s;
+    }
+
+    .edit-btn {
+      background: #3498db;
+      color: white;
+    }
+
+    .edit-btn:hover {
+      background: #2980b9;
+    }
+
+    .delete-btn {
+      background: #e74c3c;
+      color: white;
+    }
+
+    .delete-btn:hover {
+      background: #c0392b;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background: var(--card-bg);
+      padding: 30px;
+      border-radius: 12px;
+      max-width: 500px;
+      width: 90%;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+
+    .modal-title {
+      font-size: 1.5em;
+      font-weight: bold;
+      margin-bottom: 20px;
+      color: var(--primary-color);
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: var(--text-color);
+    }
+
+    .form-input,
+    .form-select,
+    .form-textarea {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid var(--border-color);
+      border-radius: 8px;
+      font-family: 'Cairo', sans-serif;
+      font-size: 1em;
+      transition: border-color 0.3s;
+    }
+
+    .form-input:focus,
+    .form-select:focus,
+    .form-textarea:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .form-textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 20px;
+    }
+
+    .dark-mode .group-item {
+      background: #2d3748;
+    }
+
+    .dark-mode .modal-content {
+      background: #2d3748;
+    }
+  </style>
+</head>
+<body id="body-main">
+  <!-- Loading Indicator -->
+  <div id="loadingIndicator" class="loading-overlay" style="display:none;">
+    <div class="spinner"></div>
+    <p>جاري التحميل...</p>
+    <p style="font-size: 1em; margin-top: 10px; font-weight: 600;">سبحان الله وبحمده سبحان الله العظيم</p>
+  </div>
+
+  <header class="header">
+    <div style="display: flex; justify-content: space-between; align-items: center; padding: 0 20px;">
+      <div>
+        <h1 class="header-title">الإعدادات</h1>
+        <p class="header-subtitle">تخصيص إعدادات النظام</p>
+      </div>
+      <div style="display: flex; gap: 10px;">
+        <button id="exitBtn" class="icon-btn" title="العودة للصفحة الرئيسية (ESC)" onclick="window.history.back()">
+          <i class="fas fa-arrow-right"></i>
+        </button>
+        <button id="darkModeToggle" class="icon-btn" title="تبديل الوضع الليلي" onclick="toggleDarkMode()">
+          <i class="fas fa-moon"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="settings-container">
+    <!-- Display Settings -->
+    <div class="settings-section">
+      <div class="settings-title">
+        <i class="fas fa-eye"></i> إعدادات العرض
+      </div>
+      
+      <div class="settings-option">
+        <label class="settings-label">الوضع الليلي</label>
+        <label class="toggle-switch">
+          <input type="checkbox" id="darkModeToggle2" onchange="applyDarkModeToggle()">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <div class="settings-option">
+        <label class="settings-label">حجم الخط</label>
+        <select id="fontSizeSelect" class="select-box" onchange="applyFontSize()">
+          <option value="small">صغير</option>
+          <option value="medium" selected>عادي</option>
+          <option value="large">كبير</option>
+        </select>
+      </div>
+
+      <div class="settings-option">
+        <label class="settings-label">عرض الرسوم البيانية</label>
+        <label class="toggle-switch">
+          <input type="checkbox" id="chartsToggle" checked onchange="saveSettings()">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Backup Settings -->
+    <div class="settings-section">
+      <div class="settings-title">
+        <i class="fas fa-shield-alt"></i> إعدادات النسخ الاحتياطي
+      </div>
+      
+      <div class="settings-option">
+        <label class="settings-label">تكرار النسخ الاحتياطي</label>
+        <select id="backupFrequency" class="select-box" onchange="saveSettings()">
+          <option value="daily">يومي</option>
+          <option value="weekly" selected>أسبوعي</option>
+          <option value="monthly">شهري</option>
+        </select>
+      </div>
+
+      <div class="settings-option">
+        <label class="settings-label">تفعيل النسخ الاحتياطي التلقائي</label>
+        <label class="toggle-switch">
+          <input type="checkbox" id="autoBackupToggle" checked onchange="saveSettings()">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <button onclick="downloadBackup()" class="main-btn" style="width: 100%; margin-top: 10px;">
+        <i class="fas fa-download"></i> تحميل نسخة احتياطية الآن
+      </button>
+      <button onclick="restoreBackup()" class="main-btn" style="width: 100%; margin-top: 10px; background: #3498db;">
+        <i class="fas fa-upload"></i> استعادة البيانات
+      </button>
+      <button onclick="clearAllData()" class="main-btn" style="width: 100%; margin-top: 10px; background: #e74c3c;">
+        <i class="fas fa-trash-alt"></i> مسح جميع البيانات
+      </button>
+      <button onclick="fixOldGradeData()" class="main-btn" style="width: 100%; margin-top: 10px; background: #f39c12;">
+        <i class="fas fa-wrench"></i> إصلاح بيانات الصفوف القديمة
+      </button>
+    </div>
+
+    <!-- Advanced Settings -->
+    <div class="settings-section">
+      <div class="settings-title">
+        <i class="fas fa-cogs"></i> إعدادات متقدمة
+      </div>
+    </div>
+
+    <!-- Groups Management -->
+    <div class="settings-section">
+      <div class="settings-title">
+        <i class="fas fa-building"></i> إدارة المراكز والمجاميع
+      </div>
+      
+      <div style="margin-bottom: 20px;">
+        <button onclick="showAddCenterModal()" class="main-btn" style="width: 100%; margin-bottom: 10px;">
+          <i class="fas fa-plus"></i> إضافة مركز جديد
+        </button>
+      </div>
+
+      <div id="centersList" style="margin-top: 15px;">
+        <!-- Centers will be loaded here -->
+      </div>
+    </div>
+
+    <!-- Contact Settings -->
+    <div class="settings-section">
+      <div class="settings-title">
+        <i class="fas fa-phone"></i> بيانات التواصل
+      </div>
+      
+      <div class="settings-option">
+        <label class="settings-label">اسم المركز</label>
+        <input type="text" id="centerName" class="text-input" placeholder="محمد الربيعي" onchange="saveSettings()">
+      </div>
+
+      <div class="settings-option">
+        <label class="settings-label">البريد الإلكتروني</label>
+        <input type="email" id="emailAddress" class="text-input" placeholder="example@email.com" onchange="saveSettings()">
+      </div>
+    </div>
+
+    <!-- System Settings -->
+    <div class="settings-section">
+      <div class="settings-title">
+        <i class="fas fa-cogs"></i> إعدادات النظام
+      </div>
+      
+      <div class="settings-option">
+        <label class="settings-label">تحديث البيانات تلقائياً</label>
+        <label class="toggle-switch">
+          <input type="checkbox" id="autoRefreshToggle" checked onchange="saveSettings()">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <div class="settings-option">
+        <label class="settings-label">إظهار رسائل التنبيه</label>
+        <label class="toggle-switch">
+          <input type="checkbox" id="notificationsToggle" checked onchange="saveSettings()">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <div class="settings-option">
+        <label class="settings-label">إصدار النظام</label>
+        <span style="color: var(--text-light);">v1.0</span>
+      </div>
+    </div>
+
+    <!-- License Management -->
+    <div class="settings-section">
+      <div class="settings-title">
+        <i class="fas fa-key"></i> إدارة الترخيص
+      </div>
+      
+      <div id="licenseStatus" style="padding: 15px; background: #f8f9fa; border-radius: 8px; margin-bottom: 15px;">
+        <p style="margin: 5px 0; color: #2c3e50;">
+          <strong>الحالة:</strong> <span id="licenseStatusText">جاري التحقق...</span>
+        </p>
+        <p style="margin: 5px 0; color: #2c3e50;" id="licenseTypeRow">
+          <strong>النوع:</strong> <span id="licenseType">-</span>
+        </p>
+        <p style="margin: 5px 0; color: #2c3e50;" id="licenseRemainingRow">
+          <strong>⏰ الوقت المتبقي:</strong> <span id="licenseRemaining" style="font-weight: bold;">-</span>
+        </p>
+        <p style="margin: 5px 0; color: #2c3e50;" id="licenseExpiryRow">
+          <strong>تاريخ الانتهاء:</strong> <span id="licenseExpiry">-</span>
+        </p>
+        <!-- <p style="margin: 5px 0; color: #2c3e50;" id="licenseDevicesRow">
+          <strong>الأجهزة المسموحة:</strong> <span id="licenseDevices">-</span>
+        </p> -->
+      </div>
+
+      <div class="settings-option" style="border-bottom: none;">
+        <button onclick="window.location.href='activation.html'" class="main-btn" style="width: 100%; margin-top: 10px;">
+          <i class="fas fa-key"></i> تفعيل / تجديد الترخيص
+        </button>
+      </div>
+    </div>
+
+    <!-- Preview Section -->
+    <div class="settings-section">
+      <div class="settings-title">
+        <i class="fas fa-image"></i> معاينة
+      </div>
+      <div class="preview-section">
+        <p class="preview-text" id="previewText">هذه معاينة لنص النظام بحجم الخط المحدد</p>
+        <button onclick="testNotification()" class="main-btn" style="margin-top: 10px;">
+          <i class="fas fa-bell"></i> اختبار الإشعارات
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Buttons -->
+  <div class="button-group" style="padding-bottom: 250px;">
+    <a href="index.html" class="back-btn" onclick="showLoading()">
+      <i class="fas fa-arrow-right"></i> العودة
+    </a>
+    <button onclick="saveSettings()" class="save-btn">
+      <i class="fas fa-check"></i> حفظ الإعدادات
+    </button>
+    <button onclick="resetToDefault()" class="reset-btn">
+      <i class="fas fa-redo"></i> استعادة الافتراضي
+    </button>
+    <button onclick="factoryReset()" class="factory-reset-btn">
+      <i class="fas fa-exclamation-triangle"></i> ضبط المصنع (حذف كل البيانات)
+    </button>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-section">
+        <p>&copy; 2026 جميع الحقوق محفوظة لـ <strong>أ/محمد الربيعي</strong></p>
+      </div>
+      <div class="footer-section">
+        <a 
+          href="https://wa.me/201080455031?text=مرحبا، أحتاج مساعدة في نظام إدارة الحضور" 
+          target="_blank"
+          style="display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #25D366 0%, #128C7E 100%); color: white; padding: 10px 20px; border-radius: 25px; text-decoration: none; font-weight: bold; transition: all 0.3s; box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);"
+          onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(37, 211, 102, 0.4)';"
+          onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(37, 211, 102, 0.3)';"
+        >
+          <i class="fab fa-whatsapp" style="font-size: 1.3em;"></i>
+          <span>تواصل مع المطور</span>
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Center Modal -->
+  <div id="centerModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-title" id="centerModalTitle">إضافة مركز جديد</div>
+      
+      <div class="form-group">
+        <label class="form-label">اسم المركز *</label>
+        <input type="text" id="centerModalName" class="form-input" placeholder="مثال: مركز الشروق" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">الوصف</label>
+        <textarea id="centerDescription" class="form-textarea" placeholder="وصف المركز (اختياري)"></textarea>
+      </div>
+
+      <div class="modal-actions">
+        <button onclick="closeCenterModal()" class="group-btn" style="background: #95a5a6; color: white;">
+          <i class="fas fa-times"></i> إلغاء
+        </button>
+        <button onclick="saveCenter()" class="group-btn" style="background: #27ae60; color: white;">
+          <i class="fas fa-check"></i> حفظ
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Group Modal -->
+  <div id="groupModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-title" id="groupModalTitle">إضافة مجموعة جديدة</div>
+      
+      <div class="form-group">
+        <label class="form-label">المركز *</label>
+        <select id="groupCenter" class="form-select" required>
+          <option value="">اختر المركز</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">اسم المجموعة *</label>
+        <input type="text" id="groupName" class="form-input" placeholder="مثال: مجموعة السبت" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">الصف الدراسي</label>
+        <select id="groupGrade" class="form-select">
+          <option value="">الكل (جميع الصفوف)</option>
+          <option value="3">الصف الأول (أولى ثانوي)</option>
+          <option value="2">الصف الثاني (ثانية ثانوي)</option>
+          <option value="1">الصف الثالث (ثالثة ثانوي)</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">الوصف</label>
+        <textarea id="groupDescription" class="form-textarea" placeholder="وصف المجموعة (اختياري)"></textarea>
+      </div>
+
+      <div class="modal-actions">
+        <button onclick="closeGroupModal()" class="group-btn" style="background: #95a5a6; color: white;">
+          <i class="fas fa-times"></i> إلغاء
+        </button>
+        <button onclick="saveGroup()" class="group-btn" style="background: #27ae60; color: white;">
+          <i class="fas fa-check"></i> حفظ
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Group Modal -->
+
+  <script src="data.js"></script>
+  <script src="notifications.js"></script>
+  <script>
+    // Load settings on page load
+    window.addEventListener('DOMContentLoaded', () => {
+      // Ensure dataManager is loaded
+      if (typeof dataManager === 'undefined') {
+        console.error('dataManager not loaded');
+      }
+      loadSettings();
+      displayLicenseInfo();
+      
+      // Apply dark mode if enabled
+      if (localStorage.getItem('darkMode') === 'true') {
+        document.getElementById('body-main').classList.add('dark-mode');
+      }
+      updateDarkModeButton();
+    });
+
+    function loadSettings() {
+      const settings = JSON.parse(localStorage.getItem('systemSettings')) || getDefaultSettings();
+      
+      document.getElementById('darkModeToggle2').checked = settings.darkMode;
+      document.getElementById('fontSizeSelect').value = settings.fontSize;
+      document.getElementById('chartsToggle').checked = settings.showCharts;
+      document.getElementById('backupFrequency').value = settings.backupFrequency;
+      document.getElementById('autoBackupToggle').checked = settings.autoBackup;
+      document.getElementById('autoRefreshToggle').checked = settings.autoRefresh;
+      document.getElementById('notificationsToggle').checked = settings.notifications;
+      document.getElementById('centerName').value = settings.centerName;
+      document.getElementById('emailAddress').value = settings.emailAddress;
+    }
+
+    function getDefaultSettings() {
+      return {
+        darkMode: false,
+        fontSize: 'medium',
+        showCharts: true,
+        backupFrequency: 'weekly',
+        autoBackup: true,
+        autoRefresh: true,
+        notifications: true,
+        centerName: 'محمد الربيعي',
+        emailAddress: ''
+      };
+    }
+
+    // دالة للرجوع للخلف أو للرئيسية
+    function goBack() {
+      if (history.length > 1) {
+        history.back();
+      } else {
+        window.location.href = 'index.html';
+      }
+    }
+
+    // دالة لعرض معلومات الترخيص
+    function displayLicenseInfo() {
+      try {
+        const license = JSON.parse(localStorage.getItem('appLicense') || '{}');
+        const statusText = document.getElementById('licenseStatusText');
+        const typeEl = document.getElementById('licenseType');
+        const expiryEl = document.getElementById('licenseExpiry');
+        const remainingEl = document.getElementById('licenseRemaining');
+        const devicesEl = document.getElementById('licenseDevices');
+        
+        if (!license.activated) {
+          statusText.textContent = '❌ غير مفعل';
+          statusText.style.color = '#e74c3c';
+          typeEl.textContent = '-';
+          expiryEl.textContent = '-';
+          remainingEl.textContent = '-';
+          if (devicesEl) devicesEl.textContent = '-';
+          return;
+        }
+        
+        statusText.textContent = '✅ مفعل';
+        statusText.style.color = '#27ae60';
+        
+        if (license.type === 'lifetime') {
+          typeEl.textContent = 'مدى الحياة 🎉';
+          expiryEl.textContent = 'لا ينتهي ∞';
+          expiryEl.style.color = '#27ae60';
+          remainingEl.textContent = 'مدى الحياة ∞';
+          remainingEl.style.color = '#27ae60';
+        } else if (license.expiryDate) {
+          const typeTitles = {
+            'hour': 'ساعة واحدة',
+            'day': 'يوم واحد',
+            'week': 'أسبوع',
+            'month': 'شهر',
+            '3months': '3 أشهر',
+            '6months': '6 أشهر',
+            'year': 'سنة',
+            '2years': 'سنتين',
+            '3years': '3 سنوات'
+          };
+          typeEl.textContent = typeTitles[license.type] || 'مدفوع';
+          
+          const endDate = new Date(license.expiryDate);
+          const now = new Date();
+          const diff = endDate - now;
+          
+          if (diff > 0) {
+            // حساب الوقت المتبقي بالتفصيل
+            const totalSeconds = Math.floor(diff / 1000);
+            const totalMinutes = Math.floor(totalSeconds / 60);
+            const totalHours = Math.floor(totalMinutes / 60);
+            const totalDays = Math.floor(totalHours / 24);
+            
+            const years = Math.floor(totalDays / 365);
+            const remainingDaysAfterYears = totalDays % 365;
+            const months = Math.floor(remainingDaysAfterYears / 30);
+            const days = remainingDaysAfterYears % 30;
+            const hours = totalHours % 24;
+            const minutes = totalMinutes % 60;
+            const seconds = totalSeconds % 60;
+            
+            // بناء النص التفصيلي
+            let timeDetails = [];
+            if (years > 0) timeDetails.push(`${years} سنة`);
+            if (months > 0) timeDetails.push(`${months} شهر`);
+            if (days > 0) timeDetails.push(`${days} يوم`);
+            if (hours > 0 && years === 0 && months === 0) timeDetails.push(`${hours} ساعة`);
+            if (minutes > 0 && years === 0 && months === 0 && days === 0) timeDetails.push(`${minutes} دقيقة`);
+            
+            const timeText = timeDetails.length > 0 ? timeDetails.join(' و ') : 'أقل من دقيقة';
+            
+            remainingEl.textContent = timeText;
+            remainingEl.style.color = totalDays <= 30 ? '#f39c12' : '#27ae60';
+            
+            expiryEl.textContent = endDate.toLocaleDateString('ar-EG', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit'
+            });
+            expiryEl.style.color = totalDays <= 30 ? '#f39c12' : '#27ae60';
+          } else {
+            remainingEl.textContent = '⚠️ انتهت الصلاحية';
+            remainingEl.style.color = '#e74c3c';
+            expiryEl.textContent = endDate.toLocaleDateString('ar-EG');
+            expiryEl.style.color = '#e74c3c';
+          }
+        }
+      } catch (err) {
+        console.error('Error displaying license info:', err);
+      }
+    }
+
+    function saveSettings() {
+      const settings = {
+        darkMode: document.getElementById('darkModeToggle2').checked,
+        fontSize: document.getElementById('fontSizeSelect').value,
+        showCharts: document.getElementById('chartsToggle').checked,
+        backupFrequency: document.getElementById('backupFrequency').value,
+        autoBackup: document.getElementById('autoBackupToggle').checked,
+        autoRefresh: document.getElementById('autoRefreshToggle').checked,
+        notifications: document.getElementById('notificationsToggle').checked,
+        centerName: document.getElementById('centerName').value,
+        emailAddress: document.getElementById('emailAddress').value
+      };
+
+      localStorage.setItem('systemSettings', JSON.stringify(settings));
+      applyFontSize();
+      notify.success('تم حفظ الإعدادات بنجاح!');
+    }
+
+    function applyFontSize() {
+      const fontSize = document.getElementById('fontSizeSelect').value;
+      const sizes = {
+        small: '14px',
+        medium: '16px',
+        large: '18px'
+      };
+      document.documentElement.style.fontSize = sizes[fontSize];
+      document.getElementById('previewText').style.fontSize = sizes[fontSize];
+    }
+
+    function applyDarkModeToggle() {
+      const isDark = document.getElementById('darkModeToggle2').checked;
+      const body = document.getElementById('body-main');
+      if (isDark) {
+        body.classList.add('dark-mode');
+      } else {
+        body.classList.remove('dark-mode');
+      }
+      localStorage.setItem('darkMode', isDark);
+      updateDarkModeButton();
+    }
+
+    function toggleDarkMode() {
+      const body = document.getElementById('body-main');
+      const isDark = body.classList.toggle('dark-mode');
+      document.getElementById('darkModeToggle2').checked = isDark;
+      localStorage.setItem('darkMode', isDark);
+      updateDarkModeButton();
+    }
+
+    function updateDarkModeButton() {
+      const btn = document.getElementById('darkModeToggle');
+      if (document.getElementById('body-main').classList.contains('dark-mode')) {
+        btn.innerHTML = '<i class="fas fa-sun"></i>';
+      } else {
+        btn.innerHTML = '<i class="fas fa-moon"></i>';
+      }
+    }
+
+    function resetToDefault() {
+      if (confirm('هل تريد فعلاً استعادة الإعدادات الافتراضية؟')) {
+        localStorage.setItem('systemSettings', JSON.stringify(getDefaultSettings()));
+        loadSettings();
+        notify.success('تم استعادة الإعدادات الافتراضية!');
+      }
+    }
+
+    async function downloadBackup() {
+      try {
+        if (typeof dataManager === 'undefined') {
+          alert('❌ خطأ: النظام غير جاهز. يرجى إعادة تحميل الصفحة.');
+          return;
+        }
+        
+        showLoading();
+        
+        const data = await dataManager.exportData();
+        const json = JSON.stringify(data, null, 2);
+        const blob = new Blob([json], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        const fileName = `attendance_backup_${new Date().toISOString().split('T')[0]}.json`;
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        setTimeout(() => {
+          if (typeof notify !== 'undefined') {
+            notify.success('✅ تم تحميل النسخة الاحتياطية بنجاح!');
+          } else {
+            alert('✅ تم تحميل النسخة الاحتياطية بنجاح!\n\nاسم الملف: ' + fileName + '\n\n📦 تم حفظ:\n• الطلاب: ' + (data.data.students?.length || 0) + '\n• الحضور: ' + (data.data.attendance?.length || 0) + '\n• الامتحانات: ' + (data.data.exams?.length || 0) + '\n• السناتر: ' + (data.data.centers?.length || 0) + '\n• المجاميع: ' + (data.data.groups?.length || 0));
+          }
+        }, 1500);
+      } catch (error) {
+        console.error('❌ خطأ في تحميل النسخة الاحتياطية:', error);
+        alert('❌ حدث خطأ أثناء تحميل النسخة الاحتياطية!\n\n' + error.message);
+      }
+    }
+
+    function restoreBackup() {
+      try {
+        if (typeof dataManager === 'undefined') {
+          alert('❌ خطأ: النظام غير جاهز. يرجى إعادة تحميل الصفحة.');
+          return;
+        }
+        
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.json';
+        input.onchange = async function(e) {
+          const file = e.target.files[0];
+          if (!file) return;
+          
+          const reader = new FileReader();
+          reader.onload = async function(e) {
+            try {
+              showLoading();
+              const data = JSON.parse(e.target.result);
+              
+              if (!data || !data.data) {
+                throw new Error('ملف النسخة الاحتياطية غير صالح');
+              }
+              
+              await dataManager.importData(data);
+              
+              setTimeout(() => {
+                alert('✅ تم استعادة البيانات بنجاح!\n\n📦 تم استرجاع:\n• الطلاب: ' + (data.data.students?.length || 0) + '\n• الحضور: ' + (data.data.attendance?.length || 0) + '\n• الامتحانات: ' + (data.data.exams?.length || 0) + '\n• السناتر: ' + (data.data.centers?.length || 0) + '\n• المجاميع: ' + (data.data.groups?.length || 0) + '\n\nسيتم إعادة تحميل الصفحة...');
+                location.reload();
+              }, 1500);
+            } catch (err) {
+              console.error('❌ خطأ في استعادة البيانات:', err);
+              alert('❌ خطأ في ملف البيانات!\n\nتأكد من صحة الملف.\n\n' + err.message);
+              location.reload();
+            }
+          };
+          reader.onerror = function() {
+            alert('❌ خطأ في قراءة الملف!');
+          };
+          reader.readAsText(file);
+        };
+        input.click();
+      } catch (error) {
+        console.error('❌ خطأ في استعادة النسخة الاحتياطية:', error);
+        alert('❌ حدث خطأ أثناء استعادة النسخة الاحتياطية!\n\n' + error.message);
+      }
+    }
+
+    async function clearAllData() {
+      if (confirm('تحذير: هذا سيمسح جميع البيانات!\n\nهل أنت متأكد من رغبتك في مسح جميع بيانات الطلاب والحضور؟')) {
+        if (confirm('تأكيد نهائي: لا يمكن استرجاع البيانات بعد الحذف!')) {
+          showLoading();
+          
+          try {
+            // حذف من localStorage
+            localStorage.clear();
+            
+            // حذف من قاعدة البيانات
+            if (window.electronAPI) {
+              const students = await window.electronAPI.getAllStudents();
+              for (const student of students) {
+                await window.electronAPI.removeStudent(student.id);
+              }
+            }
+            
+            setTimeout(() => {
+              notify.success('تم مسح جميع البيانات بنجاح!');
+              location.reload();
+            }, 1500);
+          } catch (error) {
+            console.error('Error clearing data:', error);
+            notify.error('حدث خطأ أثناء حذف البيانات');
+          }
+        }
+      }
+    }
+
+    async function factoryReset() {
+      try {
+        if (!confirm('⚠️ تحذير: ضبط المصنع\n\nهذا الإجراء سيقوم بـ:\n• حذف جميع الطلاب\n• حذف جميع سجلات الحضور\n• حذف جميع الإعدادات المحفوظة\n• إعادة النظام كما لو كان جديداً\n\nهل أنت متأكد تماماً؟')) {
+          return;
+        }
+        
+        if (!confirm('⚠️ تأكيد نهائي\n\nلن تتمكن من استرجاع أي بيانات بعد هذه العملية!\n\nننصح بحفظ نسخة احتياطية أولاً.\n\nاضغط OK للمتابعة أو Cancel للإلغاء')) {
+          return;
+        }
+        
+        if (!confirm('⚠️ آخر تحذير\n\nهل قمت بحفظ نسخة احتياطية من بياناتك؟\n\nاضغط OK لحذف كل شيء نهائياً')) {
+          return;
+        }
+        
+        showLoading();
+        
+        // حذف كل البيانات من localStorage
+        const keysToKeep = ['licenseInfo', 'usedLicenses', 'licenseActivatedAt'];
+        const savedData = {};
+        keysToKeep.forEach(key => {
+          const value = localStorage.getItem(key);
+          if (value) savedData[key] = value;
+        });
+        
+        localStorage.clear();
+        
+        // استعادة بيانات الترخيص
+        Object.keys(savedData).forEach(key => {
+          localStorage.setItem(key, savedData[key]);
+        });
+        
+        // حذف من قاعدة البيانات إذا كانت متاحة
+        if (window.electronAPI && window.electronAPI.getAllStudents) {
+          try {
+            const students = await window.electronAPI.getAllStudents();
+            console.log(`🗑️ حذف ${students.length} طالب من قاعدة البيانات...`);
+            for (const student of students) {
+              await window.electronAPI.removeStudent(student.id);
+            }
+          } catch (error) {
+            console.warn('⚠️ تحذير: فشل حذف البيانات من قاعدة البيانات:', error);
+          }
+        }
+        
+        // إظهار رسالة النجاح
+        setTimeout(() => {
+          alert('✅ تم ضبط المصنع بنجاح!\n\nتم حذف:\n• جميع الطلاب\n• جميع سجلات الحضور\n• جميع الإعدادات\n\nتم الاحتفاظ بـ:\n• بيانات الترخيص\n\nسيتم إعادة توجيهك للصفحة الرئيسية...');
+          window.location.href = 'index.html';
+        }, 1000);
+      } catch (error) {
+        console.error('❌ خطأ في ضبط المصنع:', error);
+        alert('❌ حدث خطأ أثناء ضبط المصنع!\n\n' + error.message);
+        location.reload();
+      }
+    }
+
+    async function fixOldGradeData() {
+      if (!confirm('هذه الأداة ستقوم بإصلاح بيانات الصفوف القديمة.\n\nتحويل:\n• grade=1 (كانت أولى) → grade=3 (أولى الجديد)\n• grade=3 (كانت ثالثة) → grade=1 (ثالثة الجديد)\n• grade=2 يبقى كما هو\n\nهل تريد المتابعة؟')) {
+        return;
+      }
+      
+      showLoading();
+      
+      try {
+        let fixed = 0;
+        
+        // إصلاح في قاعدة البيانات
+        if (window.electronAPI) {
+          const students = await window.electronAPI.getAllStudents();
+          
+          for (const student of students) {
+            let newGrade = student.grade;
+            
+            // تبديل القيم
+            if (student.grade === '1') {
+              newGrade = '3';
+            } else if (student.grade === '3') {
+              newGrade = '1';
+            } else if (student.grade === 1) {
+              newGrade = '3';
+            } else if (student.grade === 3) {
+              newGrade = '1';
+            }
+            
+            // تحديث الطالب إذا تغير الصف
+            if (newGrade !== student.grade) {
+              await window.electronAPI.updateStudent({
+                id: student.id,
+                name: student.name,
+                studentPhone: student.phone || student.studentPhone,
+                guardianPhone: student.parent_phone || student.guardianPhone,
+                photo: student.photo,
+                grade: newGrade,
+                center: student.center,
+                group_name: student.group_name
+              });
+              fixed++;
+            }
+          }
+        }
+        
+        // إصلاح في localStorage
+        const localStudents = JSON.parse(localStorage.getItem('students') || '[]');
+        let localFixed = 0;
+        
+        localStudents.forEach(student => {
+          if (student.grade === '1') {
+            student.grade = '3';
+            localFixed++;
+          } else if (student.grade === '3') {
+            student.grade = '1';
+            localFixed++;
+          } else if (student.grade === 1) {
+            student.grade = '3';
+            localFixed++;
+          } else if (student.grade === 3) {
+            student.grade = '1';
+            localFixed++;
+          }
+        });
+        
+        if (localFixed > 0) {
+          localStorage.setItem('students', JSON.stringify(localStudents));
+          fixed += localFixed;
+        }
+        
+        setTimeout(() => {
+          if (fixed > 0) {
+            notify.success(`✅ تم إصلاح ${fixed} طالب بنجاح!`);
+          } else {
+            notify.info('لا توجد بيانات تحتاج للإصلاح');
+          }
+          location.reload();
+        }, 1000);
+        
+      } catch (error) {
+        console.error('Error fixing grade data:', error);
+        notify.error('حدث خطأ أثناء إصلاح البيانات');
+      }
+    }
+
+    function testNotification() {
+      notify.info('✓ اختبار رسالة النظام\n\nالإشعارات تعمل بشكل صحيح!');
+    }
+
+    function showLoading() {
+      const loader = document.getElementById('loadingIndicator');
+      if (loader) {
+        loader.style.display = 'flex';
+      }
+    }
+    
+    function hideLoading() {
+      const loader = document.getElementById('loadingIndicator');
+      if (loader) {
+        loader.style.display = 'none';
+      }
+    }
+
+    // ========================================
+    // Centers and Groups Management Functions
+    // ========================================
+    
+    let currentEditCenterId = null;
+    let currentEditGroupId = null;
+    
+    // Load centers on page load
+    window.addEventListener('DOMContentLoaded', () => {
+      loadCenters();
+      populateGroupCenters();
+    });
+    
+    async function loadCenters() {
+      try {
+        const response = await fetch('http://localhost:3000/api/centers');
+        const centers = await response.json();
+        
+        const centersList = document.getElementById('centersList');
+        
+        if (centers.length === 0) {
+          centersList.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">لا توجد مراكز. أضف مركز جديد للبدء.</p>';
+          return;
+        }
+        
+        centersList.innerHTML = await Promise.all(centers.map(async center => {
+          const groupsResponse = await fetch(`http://localhost:3000/api/centers/${center.id}/groups`);
+          const groups = await groupsResponse.json();
+          
+          return `
+            <div class="center-item">
+              <div class="center-header">
+                <div class="center-title">
+                  <i class="fas fa-building"></i> ${center.name}
+                </div>
+                <div class="center-actions">
+                  <button class="center-btn center-edit-btn" onclick="editCenter(${center.id})">
+                    <i class="fas fa-edit"></i> تعديل
+                  </button>
+                  <button class="center-btn center-delete-btn" onclick="deleteCenter(${center.id}, '${center.name}')">
+                    <i class="fas fa-trash"></i> حذف
+                  </button>
+                </div>
+              </div>
+              
+              <div class="groups-container">
+                <button class="add-group-btn" onclick="showAddGroupModal(${center.id})">
+                  <i class="fas fa-plus"></i> إضافة مجموعة لهذا المركز
+                </button>
+                
+                ${groups.length > 0 ? groups.map(group => `
+                  <div class="group-item-inside">
+                    <div class="group-info-inside">
+                      <div class="group-name-inside">
+                        <i class="fas fa-users"></i> ${group.name}
+                        ${group.grade ? `<span class="group-badge" style="background: #3498db; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.85em; margin-left: 8px;">الصف ${getGradeName(group.grade)}</span>` : '<span class="group-badge" style="background: #95a5a6; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.85em; margin-left: 8px;">جميع الصفوف</span>'}
+                      </div>
+                      ${group.description ? `<div class="group-details-inside">${group.description}</div>` : ''}
+                    </div>
+                    <div class="group-actions-inside">
+                      <button class="group-btn-sm edit-btn-sm" onclick="editGroup(${group.id})">
+                        <i class="fas fa-edit"></i> تعديل
+                      </button>
+                      <button class="group-btn-sm delete-btn-sm" onclick="deleteGroup(${group.id}, '${group.name}')">
+                        <i class="fas fa-trash"></i> حذف
+                      </button>
+                    </div>
+                  </div>
+                `).join('') : '<p style="text-align: center; color: white; opacity: 0.7; padding: 10px;">لا توجد مجاميع في هذا المركز</p>'}
+              </div>
+            </div>
+          `;
+        })).then(html => html.join(''));
+      } catch (error) {
+        console.error('Error loading centers:', error);
+      }
+    }
+    
+    async function populateGroupCenters() {
+      try {
+        const response = await fetch('http://localhost:3000/api/centers');
+        const centers = await response.json();
+        
+        const select = document.getElementById('groupCenter');
+        select.innerHTML = '<option value="">اختر المركز</option>' + 
+          centers.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+      } catch (error) {
+        console.error('Error loading centers for select:', error);
+      }
+    }
+    
+    function getGradeName(grade) {
+      const grades = { '3': 'الأول (أولى ثانوي)', '2': 'الثاني (ثانية ثانوي)', '1': 'الثالث (ثالثة ثانوي)' };
+      return grades[grade] || grade;
+    }
+    
+    // CENTER FUNCTIONS
+    function showAddCenterModal() {
+      currentEditCenterId = null;
+      document.getElementById('centerModalTitle').textContent = 'إضافة مركز جديد';
+      document.getElementById('centerModalName').value = '';
+      document.getElementById('centerDescription').value = '';
+      document.getElementById('centerModal').style.display = 'flex';
+    }
+    
+    async function editCenter(id) {
+      try {
+        const response = await fetch('http://localhost:3000/api/centers');
+        const centers = await response.json();
+        const center = centers.find(c => c.id === id);
+        
+        if (!center) return;
+        
+        currentEditCenterId = id;
+        document.getElementById('centerModalTitle').textContent = 'تعديل المركز';
+        document.getElementById('centerModalName').value = center.name;
+        document.getElementById('centerDescription').value = center.description || '';
+        document.getElementById('centerModal').style.display = 'flex';
+      } catch (error) {
+        console.error('Error loading center:', error);
+      }
+    }
+    
+    async function saveCenter() {
+      const nameInput = document.getElementById('centerModalName');
+      const name = nameInput.value.trim();
+      const description = document.getElementById('centerDescription').value.trim();
+      
+      console.log('Center name:', name, 'Empty?', !name, 'Length:', name.length);
+      
+      if (!name || name === '') {
+        alert('الرجاء إدخال اسم المركز');
+        return;
+      }
+      
+      showLoading();
+      
+      try {
+        const url = currentEditCenterId 
+          ? `http://localhost:3000/api/centers/${currentEditCenterId}`
+          : 'http://localhost:3000/api/centers';
+        
+        const method = currentEditCenterId ? 'PUT' : 'POST';
+        const payload = { name, description };
+        
+        console.log('Sending payload:', payload);
+        
+        const response = await fetch(url, {
+          method: method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        
+        const result = await response.json();
+        console.log('Response:', response.status, result);
+        
+        if (!response.ok) {
+          throw new Error(result.error || 'حدث خطأ');
+        }
+        
+        closeCenterModal();
+        await loadCenters();
+        await populateGroupCenters();
+        alert(currentEditCenterId ? 'تم تحديث المركز بنجاح' : 'تم إضافة المركز بنجاح');
+      } catch (error) {
+        console.error('Error saving center:', error);
+        alert(error.message || 'خطأ في حفظ المركز');
+      } finally {
+        hideLoading();
+      }
+    }
+    
+    async function deleteCenter(id, name) {
+      if (!confirm(`هل أنت متأكد من حذف المركز "${name}" وجميع مجاميعه؟`)) {
+        return;
+      }
+      
+      showLoading();
+      
+      try {
+        const response = await fetch(`http://localhost:3000/api/centers/${id}`, {
+          method: 'DELETE'
+        });
+        
+        if (!response.ok) {
+          throw new Error('حدث خطأ في حذف المركز');
+        }
+        
+        await loadCenters();
+        await populateGroupCenters();
+        alert('تم حذف المركز بنجاح');
+      } catch (error) {
+        console.error('Error deleting center:', error);
+        alert('خطأ في حذف المركز');
+      } finally {
+        hideLoading();
+      }
+    }
+    
+    function closeCenterModal() {
+      document.getElementById('centerModal').style.display = 'none';
+      document.getElementById('centerModalName').value = '';
+      document.getElementById('centerDescription').value = '';
+      currentEditCenterId = null;
+    }
+    
+    // GROUP FUNCTIONS
+    function showAddGroupModal(centerId = null) {
+      currentEditGroupId = null;
+      document.getElementById('groupModalTitle').textContent = 'إضافة مجموعة جديدة';
+      document.getElementById('groupName').value = '';
+      document.getElementById('groupGrade').value = '';
+      document.getElementById('groupDescription').value = '';
+      if (centerId) {
+        document.getElementById('groupCenter').value = centerId;
+      }
+      document.getElementById('groupModal').style.display = 'flex';
+    }
+    
+    async function editGroup(id) {
+      try {
+        const response = await fetch('http://localhost:3000/api/groups');
+        const groups = await response.json();
+        const group = groups.find(g => g.id === id);
+        
+        if (!group) return;
+        
+        currentEditGroupId = id;
+        document.getElementById('groupModalTitle').textContent = 'تعديل المجموعة';
+        document.getElementById('groupCenter').value = group.center_id;
+        document.getElementById('groupName').value = group.name;
+        document.getElementById('groupGrade').value = group.grade || '';
+        document.getElementById('groupDescription').value = group.description || '';
+        document.getElementById('groupModal').style.display = 'flex';
+      } catch (error) {
+        console.error('Error loading group:', error);
+      }
+    }
+    
+    async function saveGroup() {
+      const name = document.getElementById('groupName').value.trim();
+      const center_id = document.getElementById('groupCenter').value;
+      const grade = document.getElementById('groupGrade').value || null;
+      const description = document.getElementById('groupDescription').value.trim();
+      
+      if (!name || !center_id) {
+        alert('الرجاء إدخال اسم المجموعة واختيار المركز');
+        return;
+      }
+      
+      showLoading();
+      
+      try {
+        const url = currentEditGroupId 
+          ? `http://localhost:3000/api/groups/${currentEditGroupId}`
+          : 'http://localhost:3000/api/groups';
+        
+        const method = currentEditGroupId ? 'PUT' : 'POST';
+        
+        const response = await fetch(url, {
+          method: method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, center_id, grade, description })
+        });
+        
+        const result = await response.json();
+        
+        if (!response.ok) {
+          throw new Error(result.error || 'حدث خطأ');
+        }
+        
+        closeGroupModal();
+        await loadCenters();
+        alert(currentEditGroupId ? 'تم تحديث المجموعة بنجاح' : 'تم إضافة المجموعة بنجاح');
+      } catch (error) {
+        console.error('Error saving group:', error);
+        alert(error.message || 'خطأ في حفظ المجموعة');
+      } finally {
+        hideLoading();
+      }
+    }
+    
+    async function deleteGroup(id, name) {
+      if (!confirm(`هل أنت متأكد من حذف المجموعة "${name}"؟`)) {
+        return;
+      }
+      
+      showLoading();
+      
+      try {
+        const response = await fetch(`http://localhost:3000/api/groups/${id}`, {
+          method: 'DELETE'
+        });
+        
+        if (!response.ok) {
+          throw new Error('حدث خطأ في حذف المجموعة');
+        }
+        
+        await loadCenters();
+        alert('تم حذف المجموعة بنجاح');
+      } catch (error) {
+        console.error('Error deleting group:', error);
+        alert('خطأ في حذف المجموعة');
+      } finally {
+        hideLoading();
+      }
+    }
+    
+    function closeGroupModal() {
+      document.getElementById('groupModal').style.display = 'none';
+    }
+    
+    // Close modals when clicking outside
+    document.addEventListener('click', function(e) {
+      const centerModal = document.getElementById('centerModal');
+      const groupModal = document.getElementById('groupModal');
+      
+      if (e.target === centerModal) {
+        closeCenterModal();
+      }
+      if (e.target === groupModal) {
+        closeGroupModal();
+      }
+      
+      // ESC key للرجوع للخلف
+      if (e.key === 'Escape') {
+        goBack();
+      }
+    });
+    
+    // معالج ESC للرجوع
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        goBack();
+      }
+    });
+  </script>
+  <script src="license-checker.js"></script>
+  <script src="port-config.js"></script>
+</body>
+</html>

@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>مولد أكواد التفعيل - مرتبط بالجهاز</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Cairo', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: white;
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      max-width: 800px;
+      width: 100%;
+    }
+
+    h1 {
+      text-align: center;
+      color: #764ba2;
+      margin-bottom: 10px;
+      font-size: 32px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #7f8c8d;
+      margin-bottom: 30px;
+      font-size: 14px;
+    }
+
+    .info-box {
+      background: #e8f5e9;
+      border-right: 4px solid #4caf50;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      color: #2e7d32;
+      font-size: 14px;
+    }
+
+    .warning-box {
+      background: #fff3e0;
+      border-right: 4px solid #ff9800;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 20px;
+      color: #e65100;
+      font-size: 14px;
+    }
+
+    .input-group {
+      margin-bottom: 25px;
+    }
+
+    label {
+      display: block;
+      color: #2c3e50;
+      margin-bottom: 10px;
+      font-weight: 600;
+      font-size: 16px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 15px;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      font-size: 16px;
+      transition: all 0.3s;
+      font-family: 'Courier New', monospace;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+    }
+
+    button {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 10px;
+      font-family: 'Cairo', sans-serif;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(102,126,234,0.3);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    .small-btn {
+      width: auto;
+      padding: 10px 20px;
+      font-size: 14px;
+      background: #95a5a6;
+    }
+
+    .small-btn:hover {
+      background: #7f8c8d;
+      transform: translateY(0);
+    }
+
+    .output {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 10px;
+      margin-top: 30px;
+      display: none;
+    }
+
+    .output.show {
+      display: block;
+      animation: slideDown 0.3s ease;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .key-item {
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      border-right: 4px solid #667eea;
+    }
+
+    .key-item h3 {
+      color: #764ba2;
+      margin-bottom: 10px;
+      font-size: 18px;
+    }
+
+    .key-value {
+      background: #2c3e50;
+      color: #00ff00;
+      padding: 12px;
+      border-radius: 5px;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      word-break: break-all;
+      margin-bottom: 10px;
+      max-height: 150px;
+      overflow-y: auto;
+      user-select: all;
+      cursor: text;
+    }
+
+    .copy-btn {
+      background: #27ae60;
+      padding: 8px 15px;
+      font-size: 14px;
+      margin-top: 5px;
+      width: auto;
+      display: inline-block;
+    }
+
+    .copy-btn:hover {
+      background: #229954;
+    }
+
+    .device-info {
+      background: #f0f0f0;
+      padding: 12px;
+      border-radius: 8px;
+      margin-top: 10px;
+      font-size: 12px;
+      color: #667eea;
+      font-family: 'Courier New', monospace;
+      word-break: break-all;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔑 مولد أكواد التفعيل</h1>
+    <p class="subtitle">نظام تفعيل مرتبط ببصمة الهاردوير الفريدة (Hardware Fingerprint)</p>
+
+    <div class="info-box">
+      <strong>🔐 معرف الجهاز الجديد (Hardware-Based):</strong><br>
+      • يبدأ بـ <code>HW-</code> بدلاً من <code>DVC-</code><br>
+      • مبني على بصمة فريدة للجهاز: Canvas + WebGL + GPU + معلومات النظام<br>
+      • ثابت ولا يتغير على نفس الجهاز<br>
+      • كل كود تفعيل يعمل على جهاز واحد فقط ولا يمكن نقله
+    </div>
+
+    <div class="input-group">
+      <label for="deviceId">معرف الجهاز (Device ID - Hardware Based):</label>
+      <input type="text" id="deviceId" placeholder="مثال: HW-ABC123XYZ-45678" required>
+      <button class="small-btn" onclick="pasteDeviceId()">
+        <i class="fas fa-paste"></i> لصق من الحافظة
+      </button>
+    </div>
+
+    <div class="input-group">
+      <label for="licenseType">مدة الترخيص:</label>
+      <select id="licenseType">
+        <option value="hour">ساعة واحدة (تجريبي)</option>
+        <option value="day">يوم واحد</option>
+        <option value="week">أسبوع (7 أيام)</option>
+        <option value="month">شهر (30 يوم)</option>
+        <option value="3months">3 أشهر (90 يوم)</option>
+        <option value="6months">6 أشهر (180 يوم)</option>
+        <option value="year">سنة (365 يوم)</option>
+        <option value="2years">سنتين (730 يوم)</option>
+        <option value="3years">3 سنوات (1095 يوم)</option>
+        <option value="lifetime" selected>مدى الحياة (لا ينتهي ∞)</option>
+      </select>
+    </div>
+
+    <button onclick="generateKey()">
+      <i class="fas fa-key"></i> توليد كود التفعيل
+    </button>
+
+    <div class="output" id="output">
+      <div class="key-item" id="keyOutput"></div>
+    </div>
+
+    <div class="warning-box">
+      ⚠️ <strong>ملاحظة هامة:</strong> 
+      <ul style="margin: 10px 0 0 20px; padding-right: 15px;">
+        <li>كل ترخيص يعمل على <strong>جهاز واحد فقط</strong></li>
+        <li>الكود مرتبط بمعرف الجهاز (Device ID) ولا يمكن نقله</li>
+        <li>لا يمكن استخدام نفس الكود أكثر من مرة</li>
+        <li>التطبيق محمي ضد التلاعب بتاريخ النظام</li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    const SECRET_KEY = '8663bea296241ad3e816dc564b2115f5';
+    const SIGNATURE_KEY = '14644a6a2b497eb7c39d9257e6b33825ee15335df11cbdc4f8ea9c19367e7d85058cef9f3f36b518d00e91fe72199c6b517be08fde27680f8e10c06f21802bf487e6fd251c3795e2a73196820cd67f202c';
+
+    async function pasteDeviceId() {
+      try {
+        const text = await navigator.clipboard.readText();
+        document.getElementById('deviceId').value = text.trim();
+        showMessage('✅ تم لصق معرف الجهاز', 'success');
+      } catch (err) {
+        alert('❌ فشل في القراءة من الحافظة. الرجاء لصق يدوياً (Ctrl+V).');
+      }
+    }
+
+    function generateKey() {
+      const deviceId = document.getElementById('deviceId').value.trim();
+      const licenseType = document.getElementById('licenseType').value;
+
+      if (!deviceId) {
+        alert('⚠️ الرجاء إدخال معرف الجهاز');
+        return;
+      }
+
+      if (deviceId.length < 10) {
+        alert('⚠️ معرف الجهاز قصير جداً. تأكد من نسخه بالكامل.');
+        return;
+      }
+
+      // تحديد المدة بالمللي ثانية
+      let durationMs;
+      let durationDays;
+      
+      switch(licenseType) {
+        case 'hour':
+          durationMs = 60 * 60 * 1000; // ساعة
+          durationDays = 1/24;
+          break;
+        case 'day':
+          durationMs = 24 * 60 * 60 * 1000; // يوم
+          durationDays = 1;
+          break;
+        case 'week':
+          durationMs = 7 * 24 * 60 * 60 * 1000; // أسبوع
+          durationDays = 7;
+          break;
+        case 'month':
+          durationMs = 30 * 24 * 60 * 60 * 1000; // شهر
+          durationDays = 30;
+          break;
+        case '3months':
+          durationMs = 90 * 24 * 60 * 60 * 1000; // 3 أشهر
+          durationDays = 90;
+          break;
+        case '6months':
+          durationMs = 180 * 24 * 60 * 60 * 1000; // 6 أشهر
+          durationDays = 180;
+          break;
+        case 'year':
+          durationMs = 365 * 24 * 60 * 60 * 1000; // سنة
+          durationDays = 365;
+          break;
+        case '2years':
+          durationMs = 730 * 24 * 60 * 60 * 1000; // سنتين
+          durationDays = 730;
+          break;
+        case '3years':
+          durationMs = 1095 * 24 * 60 * 60 * 1000; // 3 سنوات
+          durationDays = 1095;
+          break;
+        case 'lifetime':
+          durationMs = -1;
+          durationDays = -1;
+          break;
+        default:
+          durationMs = 365 * 24 * 60 * 60 * 1000;
+          durationDays = 365;
+      }
+
+      const licenseKey = generateLicenseKey(deviceId, durationMs, durationDays, licenseType);
+
+      displayKey(licenseKey, licenseType, deviceId, durationMs);
+    }
+
+    function generateLicenseKey(deviceId, durationMs, durationDays, licenseType) {
+      const data = {
+        id: generateRandomHex(16),
+        createdAt: new Date().toISOString(),
+        expiryDate: durationMs === -1 ? null : new Date(Date.now() + durationMs).toISOString(),
+        type: licenseType,
+        durationDays: durationDays,
+        deviceId: deviceId
+      };
+
+      const jsonData = JSON.stringify(data);
+      const encrypted = btoa(unescape(encodeURIComponent(jsonData)));
+      
+      // إنشاء توقيع (HMAC محاكاة)
+      const signature = simpleHmac(encrypted + deviceId, SIGNATURE_KEY).substr(0, 64);
+      
+      // ترميز Device ID
+      const encodedDeviceId = btoa(deviceId);
+      
+      // دمج: encrypted:signature:deviceId
+      const licenseKey = `${encrypted}:${signature}:${encodedDeviceId}`;
+      
+      // ترميز نهائي بـ Base64
+      return btoa(licenseKey);
+    }
+
+    function simpleHmac(message, key) {
+      let hash = 0;
+      const combined = key + message;
+      for (let i = 0; i < combined.length; i++) {
+        const char = combined.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash;
+      }
+      return Math.abs(hash).toString(16).padStart(64, '0');
+    }
+
+    function generateRandomHex(length) {
+      let result = '';
+      const chars = '0123456789abcdef';
+      for (let i = 0; i < length; i++) {
+        result += chars[Math.floor(Math.random() * chars.length)];
+      }
+      return result;
+    }
+
+    function displayKey(key, type, deviceId, durationMs) {
+      let typeText, expiryText, expiryDate;
+      
+      const typeTitles = {
+        'hour': 'ساعة واحدة (تجريبي)',
+        'day': 'يوم واحد',
+        'week': 'أسبوع (7 أيام)',
+        'month': 'شهر (30 يوم)',
+        '3months': '3 أشهر (90 يوم)',
+        '6months': '6 أشهر (180 يوم)',
+        'year': 'سنة (365 يوم)',
+        '2years': 'سنتين (730 يوم)',
+        '3years': '3 سنوات (1095 يوم)',
+        'lifetime': 'مدى الحياة (Forever)'
+      };
+      
+      typeText = typeTitles[type] || type;
+      
+      if (type === 'lifetime') {
+        expiryText = 'لا ينتهي ✅';
+      } else {
+        expiryDate = new Date(Date.now() + durationMs);
+        expiryText = expiryDate.toLocaleString('ar-EG', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+      }
+      
+      const html = `
+        <h3><i class="fas fa-key"></i> ${typeText}</h3>
+        <div class="key-value" onclick="selectText(this)">${key}</div>
+        <button class="copy-btn" onclick="copyKey('${key.replace(/'/g, "\\'")}')">
+          <i class="fas fa-copy"></i> نسخ الكود
+        </button>
+        <div class="device-info">
+          <strong>🔗 مرتبط بـ Device ID:</strong><br>
+          ${deviceId}<br><br>
+          <strong>📅 تاريخ الانتهاء:</strong> ${expiryText}<br>
+          <strong>🎯 تم التوليد:</strong> ${new Date().toLocaleString('ar-EG')}
+        </div>
+      `;
+      
+      document.getElementById('keyOutput').innerHTML = html;
+      document.getElementById('output').classList.add('show');
+
+      // حفظ في التاريخ
+      saveToHistory(key, type, deviceId);
+    }
+
+    function selectText(element) {
+      const range = document.createRange();
+      range.selectNodeContents(element);
+      const selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+    }
+
+    async function copyKey(key) {
+      try {
+        await navigator.clipboard.writeText(key);
+        showMessage('✅ تم نسخ الكود', 'success');
+      } catch (err) {
+        const textArea = document.createElement('textarea');
+        textArea.value = key;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        showMessage('✅ تم نسخ الكود', 'success');
+      }
+    }
+
+    function showMessage(message, type) {
+      const existingMsg = document.querySelector('.toast-message');
+      if (existingMsg) existingMsg.remove();
+
+      const div = document.createElement('div');
+      div.className = 'toast-message';
+      div.textContent = message;
+      div.style.cssText = `
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: ${type === 'success' ? '#27ae60' : '#e74c3c'};
+        color: white;
+        padding: 15px 25px;
+        border-radius: 10px;
+        font-size: 14px;
+        z-index: 10000;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        animation: slideDown 0.3s ease;
+      `;
+      document.body.appendChild(div);
+      setTimeout(() => div.remove(), 3000);
+    }
+
+    function saveToHistory(key, type, deviceId) {
+      try {
+        const history = JSON.parse(localStorage.getItem('keyGenHistory') || '[]');
+        history.unshift({
+          key: key,
+          type: type,
+          deviceId: deviceId,
+          timestamp: new Date().toISOString()
+        });
+        // الاحتفاظ بآخر 50 كود فقط
+        if (history.length > 50) history.pop();
+        localStorage.setItem('keyGenHistory', JSON.stringify(history));
+      } catch (err) {
+        console.error('Failed to save to history:', err);
+      }
+    }
+
+    // Auto-focus على حقل Device ID
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('deviceId').focus();
+    });
+  </script>
+</body>
+</html>
