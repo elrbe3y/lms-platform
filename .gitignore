@@ -42,3 +42,7 @@ Thumbs.db
 # Misc
 *.pem
 .vercel
+
+*.dll
+*.exe
+.local-chromium/
