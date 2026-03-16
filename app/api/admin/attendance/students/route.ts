@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
       orderBy: { createdAt: 'desc' },
     });
 
-    const studentIds = students.map((student) => student.id);
+    const studentIds = students.map((student: any) => student.id);
 
     if (!studentIds.length) {
       return NextResponse.json({

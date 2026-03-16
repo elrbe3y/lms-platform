@@ -218,6 +218,7 @@ export default function AdminDashboard() {
     if (tab === 'courses') {
       void loadCourses();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tab, courses.length]);
 
   useEffect(() => {
@@ -226,6 +227,7 @@ export default function AdminDashboard() {
       void loadAttendanceStudents(attendanceSearch);
     }, 250);
     return () => clearTimeout(timeout);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [attendanceSearch, attendanceCourseId, attendanceLessonId, attendanceNotPurchasedOnly, tab]);
 
   async function loadStats() {
