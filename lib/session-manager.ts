@@ -4,6 +4,7 @@
  */
 
 import crypto from 'crypto';
+import jwt from 'jsonwebtoken';
 import { prisma } from './db';
 
 // ====================================
@@ -102,6 +103,36 @@ export async function verifySession(
   deviceId: string
 ): Promise<{ valid: boolean; userId?: string; role?: 'ADMIN' | 'STUDENT'; message?: string }> {
   try {
+    if (process.env.ENABLE_DEV_QUICK_LOGIN === 'true' && token.startsWith('dev.')) {
+      const jwtSecret = process.env.JWT_SECRET;
+      if (!jwtSecret) {
+        return { valid: false, message: 'JWT secret is missing' };
+      }
+
+      const rawToken = token.slice(4);
+      const decoded = jwt.verify(rawToken, jwtSecret) as jwt.JwtPayload;
+      const userId = typeof decoded.sub === 'string' ? decoded.sub : '';
+
+      if (!userId || (decoded.role !== 'ADMIN' && decoded.role !== 'STUDENT')) {
+        return { valid: false, message: 'Invalid dev session' };
+      }
+
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { role: true, status: true },
+      });
+
+      if (!user) {
+        return { valid: false, message: 'User not found' };
+      }
+
+      if (user.status === 'SUSPENDED' || user.status === 'BANNED') {
+        return { valid: false, message: 'الحساب معلق' };
+      }
+
+      return { valid: true, userId, role: user.role };
+    }
+
     const session = await prisma.session.findUnique({
       where: { token },
       include: { user: true },

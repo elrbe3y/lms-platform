@@ -4,7 +4,6 @@ import jwt from 'jsonwebtoken';
 import { randomUUID } from 'crypto';
 import { z } from 'zod';
 import { prisma } from '@/lib/db';
-import { createSession } from '@/lib/session-manager';
 
 const devLoginSchema = z.object({
   role: z.enum(['ADMIN', 'STUDENT']),
@@ -83,27 +82,10 @@ export async function POST(request: Request) {
       );
     }
 
-    const token = jwt.sign({ sub: user.id, role: user.role, jti: randomUUID() }, jwtSecret, {
+    const rawToken = jwt.sign({ sub: user.id, role: user.role, jti: randomUUID() }, jwtSecret, {
       expiresIn: '7d',
     });
-
-    const userAgent = request.headers.get('user-agent') || '';
-    const forwardedFor = request.headers.get('x-forwarded-for') || '';
-    const ipAddress = forwardedFor.split(',')[0]?.trim() || '127.0.0.1';
-
-    const sessionResult = await createSession({
-      userId: user.id,
-      deviceInfo: {
-        userAgent,
-        ipAddress,
-      },
-      jwtToken: token,
-      expiresIn: 60 * 60 * 24 * 7,
-    });
-
-    if (!sessionResult.success) {
-      return NextResponse.json({ error: 'Failed to create session' }, { status: 500 });
-    }
+    const token = `dev.${rawToken}`;
 
     const response = NextResponse.json({
       success: true,
