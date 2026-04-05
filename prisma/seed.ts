@@ -53,7 +53,7 @@ async function main() {
     where: { id: 'physics-3rd-grade' },
   });
 
-  // 1. إنشاء حساب الأدمن
+  // 1. إنشاء حـساب الأدمن
   const adminPassword = await bcrypt.hash('admin123456', 10);
   const admin = await prisma.user.upsert({
     where: { email: 'admin@mohamed-rabiei.com' },
