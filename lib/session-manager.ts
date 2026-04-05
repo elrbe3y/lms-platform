@@ -117,20 +117,7 @@ export async function verifySession(
         return { valid: false, message: 'Invalid dev session' };
       }
 
-      const user = await prisma.user.findUnique({
-        where: { id: userId },
-        select: { role: true, status: true },
-      });
-
-      if (!user) {
-        return { valid: false, message: 'User not found' };
-      }
-
-      if (user.status === 'SUSPENDED' || user.status === 'BANNED') {
-        return { valid: false, message: 'الحساب معلق' };
-      }
-
-      return { valid: true, userId, role: user.role };
+      return { valid: true, userId, role: decoded.role };
     }
 
     const session = await prisma.session.findUnique({

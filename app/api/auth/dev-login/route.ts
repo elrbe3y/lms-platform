@@ -15,6 +15,14 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Not available' }, { status: 404 });
     }
 
+    const jwtSecret = process.env.JWT_SECRET;
+    if (!jwtSecret) {
+      return NextResponse.json(
+        { error: 'Server misconfiguration: JWT_SECRET is missing' },
+        { status: 503 }
+      );
+    }
+
     let body;
     try {
       body = await request.json();
@@ -29,31 +37,12 @@ export async function POST(request: Request) {
 
     const { role } = parsed.data;
 
-    let user = await prisma.user.findFirst({
-      where: {
-        role,
-        status: 'ACTIVE',
-      },
-      select: {
-        id: true,
-        fullName: true,
-        email: true,
-        role: true,
-      },
-      orderBy: { createdAt: 'asc' },
-    });
+    let user: { id: string; fullName: string; email: string; role: 'ADMIN' | 'STUDENT' } | null = null;
 
-    if (!user && role === 'STUDENT') {
-      const createdStudent = await prisma.user.create({
-        data: {
-          fullName: 'طالب تجريبي',
-          email: `demo.student.${Date.now()}@example.com`,
-          phone: `01${Date.now().toString().slice(-9)}`,
-          password: await bcrypt.hash('demo123456', 10),
-          schoolName: 'مدرسة تجريبية',
-          grade: 'THIRD',
-          address: 'القاهرة',
-          role: 'STUDENT',
+    try {
+      user = await prisma.user.findFirst({
+        where: {
+          role,
           status: 'ACTIVE',
         },
         select: {
@@ -62,24 +51,43 @@ export async function POST(request: Request) {
           email: true,
           role: true,
         },
+        orderBy: { createdAt: 'asc' },
       });
 
-      user = createdStudent;
+      if (!user && role === 'STUDENT') {
+        const createdStudent = await prisma.user.create({
+          data: {
+            fullName: 'طالب تجريبي',
+            email: `demo.student.${Date.now()}@example.com`,
+            phone: `01${Date.now().toString().slice(-9)}`,
+            password: await bcrypt.hash('demo123456', 10),
+            schoolName: 'مدرسة تجريبية',
+            grade: 'THIRD',
+            address: 'القاهرة',
+            role: 'STUDENT',
+            status: 'ACTIVE',
+          },
+          select: {
+            id: true,
+            fullName: true,
+            email: true,
+            role: true,
+          },
+        });
+
+        user = createdStudent;
+      }
+    } catch (dbError) {
+      console.warn('Dev login database fallback:', dbError);
     }
 
     if (!user) {
-      return NextResponse.json(
-        { error: role === 'ADMIN' ? 'No active admin found' : 'No active student found' },
-        { status: 404 }
-      );
-    }
-
-    const jwtSecret = process.env.JWT_SECRET;
-    if (!jwtSecret) {
-      return NextResponse.json(
-        { error: 'Server misconfiguration: JWT_SECRET is missing' },
-        { status: 503 }
-      );
+      user = {
+        id: `dev-${role.toLowerCase()}`,
+        fullName: role === 'ADMIN' ? 'أدمن تجريبي' : 'طالب تجريبي',
+        email: role === 'ADMIN' ? 'dev.admin@example.com' : 'dev.student@example.com',
+        role,
+      };
     }
 
     const rawToken = jwt.sign({ sub: user.id, role: user.role, jti: randomUUID() }, jwtSecret, {
