@@ -57,7 +57,16 @@ async function main() {
   const adminPassword = await bcrypt.hash('admin123456', 10);
   const admin = await prisma.user.upsert({
     where: { email: 'admin@mohamed-rabiei.com' },
-    update: {},
+    update: {
+      fullName: 'محمد الربيعي',
+      phone: '01000000000',
+      password: adminPassword,
+      schoolName: 'إدارة المنصة',
+      grade: 'N/A',
+      address: 'القاهرة، مصر',
+      role: 'ADMIN',
+      status: 'ACTIVE',
+    },
     create: {
       fullName: 'محمد الربيعي',
       email: 'admin@mohamed-rabiei.com',
