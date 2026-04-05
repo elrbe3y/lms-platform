@@ -9,6 +9,8 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [quickLoadingRole, setQuickLoadingRole] = useState<'ADMIN' | 'STUDENT' | null>(null);
+  const showQuickLogin = process.env.NEXT_PUBLIC_ENABLE_DEV_QUICK_LOGIN === 'true';
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -36,6 +38,34 @@ export default function LoginPage() {
       setError(submitError instanceof Error ? submitError.message : 'فشل تسجيل الدخول');
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleQuickLogin(role: 'ADMIN' | 'STUDENT') {
+    setError('');
+    setQuickLoadingRole(role);
+
+    try {
+      const response = await fetch('/api/auth/dev-login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ role }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'فشل تسجيل الدخول التجريبي');
+      }
+
+      router.push(data.redirectTo || (role === 'ADMIN' ? '/admin' : '/dashboard'));
+      router.refresh();
+    } catch (submitError) {
+      setError(submitError instanceof Error ? submitError.message : 'فشل تسجيل الدخول التجريبي');
+    } finally {
+      setQuickLoadingRole(null);
     }
   }
 
@@ -89,6 +119,30 @@ export default function LoginPage() {
           >
             {loading ? 'جاري تسجيل الدخول...' : 'تسجيل الدخول'}
           </button>
+
+          {showQuickLogin ? (
+            <div className="space-y-2 pt-2">
+              <p className="text-xs font-semibold text-amber-700">وضع تجريبي مؤقت:</p>
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                <button
+                  type="button"
+                  disabled={quickLoadingRole !== null}
+                  onClick={() => void handleQuickLogin('ADMIN')}
+                  className="rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-800 hover:bg-amber-100 disabled:opacity-60"
+                >
+                  {quickLoadingRole === 'ADMIN' ? 'جاري الدخول...' : 'دخول أدمن تجريبي'}
+                </button>
+                <button
+                  type="button"
+                  disabled={quickLoadingRole !== null}
+                  onClick={() => void handleQuickLogin('STUDENT')}
+                  className="rounded-lg border border-emerald-300 bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-800 hover:bg-emerald-100 disabled:opacity-60"
+                >
+                  {quickLoadingRole === 'STUDENT' ? 'جاري الدخول...' : 'دخول طالب تجريبي'}
+                </button>
+              </div>
+            </div>
+          ) : null}
         </form>
       </div>
     </div>
