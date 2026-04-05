@@ -10,7 +10,8 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [quickLoadingRole, setQuickLoadingRole] = useState<'ADMIN' | 'STUDENT' | null>(null);
-  const showQuickLogin = process.env.NEXT_PUBLIC_ENABLE_DEV_QUICK_LOGIN === 'true';
+  const showQuickLogin =
+    process.env.NEXT_PUBLIC_ENABLE_DEV_QUICK_LOGIN === 'true' && process.env.NODE_ENV !== 'production';
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -121,8 +122,9 @@ export default function LoginPage() {
           </button>
 
           {showQuickLogin ? (
-            <div className="space-y-2 pt-2">
-              <p className="text-xs font-semibold text-amber-700">وضع تجريبي مؤقت:</p>
+            <div className="space-y-2 rounded-lg border border-amber-300 bg-amber-50 p-3 pt-2">
+              <p className="text-xs font-bold text-amber-800">وضع تجريبي مؤقت فقط (غير مخصص للإنتاج)</p>
+              <p className="text-xs text-amber-700">هذه الأزرار لتجربة الواجهات بسرعة بدون إدخال بيانات تسجيل.</p>
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                 <button
                   type="button"
