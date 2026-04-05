@@ -2,7 +2,42 @@
  * 🏠 الصفحة الرئيسية - منصة محمد الربيعي التعليمية
  */
 
+'use client';
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+
 export default function HomePage() {
+  const router = useRouter();
+  const [loadingRole, setLoadingRole] = useState<'ADMIN' | 'STUDENT' | null>(null);
+
+  async function handleQuickLogin(role: 'ADMIN' | 'STUDENT') {
+    setLoadingRole(role);
+
+    try {
+      const response = await fetch('/api/auth/dev-login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ role }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'فشل الدخول التجريبي');
+      }
+
+      router.push(data.redirectTo || (role === 'ADMIN' ? '/admin' : '/dashboard'));
+      router.refresh();
+    } catch (error) {
+      alert(error instanceof Error ? error.message : 'فشل الدخول التجريبي');
+    } finally {
+      setLoadingRole(null);
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-600 to-indigo-900" dir="rtl">
       <div className="container mx-auto px-4 py-16">
@@ -14,19 +49,23 @@ export default function HomePage() {
           <p className="mb-8 text-2xl text-blue-100">
             رحلتك نحو التفوق في الفيزياء - الثانوية العامة
           </p>
-          <div className="flex justify-center gap-4">
-            <a
-              href="/register"
-              className="rounded-lg bg-white px-8 py-4 text-lg font-semibold text-blue-600 shadow-lg transition-all hover:bg-blue-50 hover:scale-105"
+          <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
+            <button
+              type="button"
+              onClick={() => void handleQuickLogin('ADMIN')}
+              disabled={loadingRole !== null}
+              className="rounded-lg bg-white px-8 py-4 text-lg font-semibold text-blue-600 shadow-lg transition-all hover:bg-blue-50 hover:scale-105 disabled:opacity-60"
             >
-              📝 إنشاء حساب جديد
-            </a>
-            <a
-              href="/login"
-              className="rounded-lg border-2 border-white px-8 py-4 text-lg font-semibold text-white transition-all hover:bg-white hover:text-blue-600"
+              {loadingRole === 'ADMIN' ? 'جاري الدخول...' : 'دخول الأدمن مباشرة'}
+            </button>
+            <button
+              type="button"
+              onClick={() => void handleQuickLogin('STUDENT')}
+              disabled={loadingRole !== null}
+              className="rounded-lg border-2 border-white px-8 py-4 text-lg font-semibold text-white transition-all hover:bg-white hover:text-blue-600 disabled:opacity-60"
             >
-              🔑 تسجيل الدخول
-            </a>
+              {loadingRole === 'STUDENT' ? 'جاري الدخول...' : 'دخول الطالب مباشرة'}
+            </button>
           </div>
         </div>
 
