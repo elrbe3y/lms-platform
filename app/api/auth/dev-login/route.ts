@@ -12,10 +12,6 @@ const devLoginSchema = z.object({
 
 export async function POST(request: Request) {
   try {
-    if (process.env.NODE_ENV === 'production') {
-      return NextResponse.json({ error: 'Not available in production' }, { status: 404 });
-    }
-
     if (process.env.ENABLE_DEV_QUICK_LOGIN !== 'true') {
       return NextResponse.json({ error: 'Not available' }, { status: 404 });
     }
