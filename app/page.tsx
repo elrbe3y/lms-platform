@@ -4,40 +4,9 @@
 
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 export default function HomePage() {
-  const router = useRouter();
-  const [loadingRole, setLoadingRole] = useState<'ADMIN' | 'STUDENT' | null>(null);
-
-  async function handleQuickLogin(role: 'ADMIN' | 'STUDENT') {
-    setLoadingRole(role);
-
-    try {
-      const response = await fetch('/api/auth/dev-login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ role }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'فشل الدخول التجريبي');
-      }
-
-      router.push(data.redirectTo || (role === 'ADMIN' ? '/admin' : '/dashboard'));
-      router.refresh();
-    } catch (error) {
-      alert(error instanceof Error ? error.message : 'فشل الدخول التجريبي');
-    } finally {
-      setLoadingRole(null);
-    }
-  }
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-600 to-indigo-900" dir="rtl">
       <div className="container mx-auto px-4 py-16">
@@ -50,22 +19,18 @@ export default function HomePage() {
             رحلتك نحو التفوق في الفيزياء - الثانوية العامة
           </p>
           <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <button
-              type="button"
-              onClick={() => void handleQuickLogin('ADMIN')}
-              disabled={loadingRole !== null}
+            <Link
+              href="/admin"
               className="rounded-lg bg-white px-8 py-4 text-lg font-semibold text-blue-600 shadow-lg transition-all hover:bg-blue-50 hover:scale-105 disabled:opacity-60"
             >
-              {loadingRole === 'ADMIN' ? 'جاري الدخول...' : 'دخول الأدمن مباشرة'}
-            </button>
-            <button
-              type="button"
-              onClick={() => void handleQuickLogin('STUDENT')}
-              disabled={loadingRole !== null}
+              دخول الأدمن مباشرة
+            </Link>
+            <Link
+              href="/dashboard"
               className="rounded-lg border-2 border-white px-8 py-4 text-lg font-semibold text-white transition-all hover:bg-white hover:text-blue-600 disabled:opacity-60"
             >
-              {loadingRole === 'STUDENT' ? 'جاري الدخول...' : 'دخول الطالب مباشرة'}
-            </button>
+              دخول الطالب مباشرة
+            </Link>
           </div>
         </div>
 
