@@ -6,7 +6,8 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
-  const demoPublicAccess = process.env.DEMO_PUBLIC_ACCESS === 'true';
+  // Open demo mode is enabled by default unless explicitly disabled.
+  const demoPublicAccess = process.env.DEMO_PUBLIC_ACCESS !== 'false';
 
   // المسارات التي تتطلب مصادقة
   const protectedPaths = ['/dashboard', '/courses', '/lessons', '/profile'];
