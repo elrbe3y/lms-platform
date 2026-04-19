@@ -6,6 +6,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
+  const demoPublicAccess = process.env.DEMO_PUBLIC_ACCESS === 'true';
 
   // المسارات التي تتطلب مصادقة
   const protectedPaths = ['/dashboard', '/courses', '/lessons', '/profile'];
@@ -15,6 +16,19 @@ export async function middleware(request: NextRequest) {
   const isProtectedPath = protectedPaths.some((p) => path.startsWith(p));
   const isAdminPath = adminPaths.some((p) => path.startsWith(p));
   const isAdminApiPath = adminApiPaths.some((p) => path.startsWith(p));
+
+  if (demoPublicAccess && (isProtectedPath || isAdminPath || isAdminApiPath || path.startsWith('/api/student'))) {
+    const response = NextResponse.next();
+    const demoToken = isAdminPath || isAdminApiPath ? 'demo-admin-token' : 'demo-student-token';
+    response.cookies.set('session_token', demoToken, {
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production',
+      path: '/',
+      maxAge: 60 * 60 * 24 * 7,
+    });
+    return response;
+  }
 
   if (isProtectedPath || isAdminPath || isAdminApiPath) {
     // 1. استخراج التوكن
@@ -85,5 +99,6 @@ export const config = {
     '/admin/:path*',
     '/profile/:path*',
     '/api/admin/:path*',
+    '/api/student/:path*',
   ],
 };

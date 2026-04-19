@@ -138,7 +138,7 @@ export default function Sidebar() {
         <div className="px-5 pb-3 pt-6 text-center">
           {!logoFailed ? (
             <Image
-              src="/logo.png"
+              src="/logo.svg"
               alt="شعار منصة محمد الربيعي"
               width={220}
               height={80}

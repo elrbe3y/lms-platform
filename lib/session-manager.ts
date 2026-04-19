@@ -5,6 +5,7 @@
 
 import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
 import { prisma } from './db';
 
 // ====================================
@@ -103,6 +104,18 @@ export async function verifySession(
   deviceId: string
 ): Promise<{ valid: boolean; userId?: string; role?: 'ADMIN' | 'STUDENT'; message?: string }> {
   try {
+    if (process.env.DEMO_PUBLIC_ACCESS === 'true') {
+      if (token === 'demo-admin-token') {
+        const userId = await getOrCreateDemoUser('ADMIN');
+        return userId ? { valid: true, userId, role: 'ADMIN' } : { valid: false, message: 'Demo admin unavailable' };
+      }
+
+      if (token === 'demo-student-token') {
+        const userId = await getOrCreateDemoUser('STUDENT');
+        return userId ? { valid: true, userId, role: 'STUDENT' } : { valid: false, message: 'Demo student unavailable' };
+      }
+    }
+
     if (process.env.ENABLE_DEV_QUICK_LOGIN === 'true' && token.startsWith('dev.')) {
       const jwtSecret = process.env.JWT_SECRET;
       if (!jwtSecret) {
@@ -115,6 +128,14 @@ export async function verifySession(
 
       if (!userId || (decoded.role !== 'ADMIN' && decoded.role !== 'STUDENT')) {
         return { valid: false, message: 'Invalid dev session' };
+      }
+
+      if (userId.startsWith('dev-')) {
+        const mappedUserId = await getOrCreateDemoUser(decoded.role);
+        if (!mappedUserId) {
+          return { valid: false, message: 'Demo user unavailable' };
+        }
+        return { valid: true, userId: mappedUserId, role: decoded.role };
       }
 
       return { valid: true, userId, role: decoded.role };
@@ -167,6 +188,65 @@ export async function verifySession(
   } catch (error) {
     console.error('❌ خطأ في التحقق من الجلسة:', error);
     return { valid: false, message: 'خطأ في التحقق' };
+  }
+}
+
+async function getOrCreateDemoUser(role: 'ADMIN' | 'STUDENT'): Promise<string | null> {
+  try {
+    const existing = await prisma.user.findFirst({
+      where: { role, status: 'ACTIVE' },
+      select: { id: true },
+      orderBy: { createdAt: 'asc' },
+    });
+
+    if (existing?.id) {
+      return existing.id;
+    }
+
+    const demoPassword = await bcrypt.hash('demo123456', 10);
+
+    if (role === 'ADMIN') {
+      const demoAdmin = await prisma.user.upsert({
+        where: { email: 'demo.admin@example.com' },
+        update: { status: 'ACTIVE', role: 'ADMIN' },
+        create: {
+          fullName: 'أدمن تجريبي',
+          email: 'demo.admin@example.com',
+          phone: '01011111111',
+          password: demoPassword,
+          schoolName: 'إدارة تجريبية',
+          grade: 'N/A',
+          address: 'القاهرة',
+          role: 'ADMIN',
+          status: 'ACTIVE',
+        },
+        select: { id: true },
+      });
+
+      return demoAdmin.id;
+    }
+
+    const demoStudent = await prisma.user.upsert({
+      where: { email: 'demo.student@example.com' },
+      update: { status: 'ACTIVE', role: 'STUDENT' },
+      create: {
+        fullName: 'طالب تجريبي',
+        email: 'demo.student@example.com',
+        phone: '01022222222',
+        password: demoPassword,
+        schoolName: 'مدرسة تجريبية',
+        grade: 'THIRD',
+        address: 'القاهرة',
+        role: 'STUDENT',
+        status: 'ACTIVE',
+      },
+      select: { id: true },
+    });
+
+    return demoStudent.id;
+  } catch (error) {
+    console.error('❌ خطأ في إنشاء مستخدم تجريبي:', error);
+    return null;
   }
 }
 
